@@ -87,3 +87,13 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# Intellij IDEA
+.iml
+.idea/
+
+pyvalue.iml
+
+mysql_account.txt
+
+AAPL.csv
