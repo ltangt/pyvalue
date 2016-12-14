@@ -1,6 +1,9 @@
+# Morningstar database interface
+# Author: Liang Tang
+# License: BSD
 import pymysql
 import datetime
-import morningstar_financials
+
 
 class MorningStartDB:
     DB_ACCOUNT_FILE = "mysql_account.txt"
@@ -34,14 +37,32 @@ class MorningStartDB:
     def close(self):
         self._conn.close()
 
-    def update(self, financials, version='1'):
-        revenue_in_millions = financials.revenue_in_millions
-        stock = financials.stock
+    def update(self, financial, version='1'):
+        revenue_in_millions = financial.revenue_in_millions
+        stock = financial.stock
+        # extract the existing records of the stock and version
         cur = self._conn.cursor()
-        sql = "INSERT INTO revenue(STOCK, DATE, VERSION, REVENUE_IN_MILLION	) VALUES('%s','%s','%s','%s')"
+        cur.execute("SELECT STOCK, DATE FROM revenue WHERE STOCK = '%s' AND VERSION = '%s'" % (stock, version))
+        result = cur.fetchall()
+        existing_dates = []
+        for row in result:
+            date = row[1].strftime('%Y-%m-%d')
+            existing_dates.append(date)
+        cur.close()
+        existing_dates = set(existing_dates)
+
+        cur = self._conn.cursor()
+        sql_insert = "INSERT INTO revenue(STOCK, DATE, VERSION, REVENUE_IN_MILLION	) VALUES('%s','%s','%s','%s')"
+        sql_update = "UPDATE revenue SET REVENUE_IN_MILLION = '%s' WHERE STOCK = '%s' AND DATE = '%s' " \
+                     " AND VERSION = '%s'"
+
         for date in revenue_in_millions:
             revenue = revenue_in_millions[date]
-            cur.execute(sql % (stock, self._formate_date(date), version, revenue))
+            date_format = self._formate_date(date)
+            if date_format in existing_dates:
+                cur.execute(sql_update % (revenue, stock, date_format, version))
+            else:
+                cur.execute(sql_insert % (stock, date_format, version, revenue))
         cur.close()
         self._conn.commit()
 

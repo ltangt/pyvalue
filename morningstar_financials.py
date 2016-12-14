@@ -2,7 +2,8 @@
 # Author: Liang Tang
 # License: BSD
 
-class MorningStarFinancials(object):
+
+class MorningStarFinancial(object):
     _stock = ""
     _revenue_in_millions = {}  # the key is the date and the value is the revenue in millions
 
