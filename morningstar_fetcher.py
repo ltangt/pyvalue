@@ -13,6 +13,9 @@ class MorningStarFetcherException(Exception):
 
 class MorningStarFetcher:
     FINANCIAL_HEADER = "Financials"
+    REVENUE_LINE_PREFIX = "Revenue USD Mil"
+    NET_INCOME_LINE_PREFIX = "Net Income USD Mil"
+    BOOK_VALUE_PER_SHARE = "Book Value Per Share"
 
     def __init__(self):
         return
@@ -40,7 +43,7 @@ class MorningStarFetcher:
         lines = html.split("\n")
         self._parse_financial(lines, financial)
 
-    # Parse the financial compnents from the csv
+    # Parse the financial components from the csv
     def _parse_financial(self, lines, financial):
         line_idx = self._find_line_index(lines, self.FINANCIAL_HEADER)
         if line_idx == -1:
@@ -48,20 +51,33 @@ class MorningStarFetcher:
         line_dates = lines[line_idx+1]
         # Get the dates
         dates = self._get_dates(line_dates)
-        # Get the revenue per year
-        revenues = {}
-        revenue_line = lines[line_idx+2]
 
-        tokens = self._parse_csv_line(revenue_line)
+        # Get the financial values
+        financial.revenue_in_millions = \
+            MorningStarFetcher._parse_financial_with_dates(lines, dates, self.REVENUE_LINE_PREFIX)
+
+        financial.net_income_in_millions = \
+            MorningStarFetcher._parse_financial_with_dates(lines, dates, self.NET_INCOME_LINE_PREFIX)
+
+        financial.book_value_per_share = \
+            MorningStarFetcher._parse_financial_with_dates(lines, dates, self.BOOK_VALUE_PER_SHARE)
+
+    @staticmethod
+    def _parse_financial_with_dates(lines, dates, line_prefix):
+        values = {}
+        line_idx = MorningStarFetcher._find_line_startwith(lines, line_prefix)
+        if line_idx == -1:
+            raise MorningStarFetcherException("Cannot find "+line_prefix+ " line.")
+        line = lines[line_idx]
+        tokens = MorningStarFetcher._parse_csv_line(line)
         for i in range(1, len(tokens)-2):
             token = tokens[i].replace(',', '').strip()
             if len(token) == 0:
                 continue
-            revenue_in_million = float(token)
+            value = float(token)
             date = dates[i]
-            revenues[date] = revenue_in_million
-        # Set the revenues
-        financial.revenue_in_millions = revenues
+            values[date] = value
+        return values
 
     @staticmethod
     def _find_line_index(lines, head):
@@ -70,6 +86,15 @@ class MorningStarFetcher:
         for line in lines:
             line = line.lower()
             if head in line:
+                return index
+            index += 1
+        return -1
+
+    @staticmethod
+    def _find_line_startwith(lines, start_with):
+        index = 0
+        for line in lines:
+            if line.startswith(start_with):
                 return index
             index += 1
         return -1

@@ -11,6 +11,7 @@ import sys
 def update_stock_morningstar(stock):
     fetcher = morningstar_fetcher.MorningStarFetcher()
     financial = fetcher.fetch(stock)
+    print financial.debug_info()
     if financial is None:
         print "No result"
         return

@@ -38,11 +38,20 @@ class MorningStartDB:
         self._conn.close()
 
     def update(self, financial, version='1'):
-        revenue_in_millions = financial.revenue_in_millions
         stock = financial.stock
+        self._update_date_values(stock, financial.revenue_in_millions, version,
+                                 'annual_revenue', 'REVENUE_IN_MILLION')
+        self._update_date_values(stock, financial.net_income_in_millions, version,
+                                 'annual_net_income', 'NET_INCOME_IN_MILLIONS')
+        self._update_date_values(stock, financial.book_value_per_share, version,
+                                 'book_value_per_share', 'BOOK_VALUE_PER_SHARE')
+        self._conn.commit()
+
+    # Update the revenue, net_income and other financial values with dates in the database
+    def _update_date_values(self, stock, date_values, version, table_name, column_name):
         # extract the existing records of the stock and version
         cur = self._conn.cursor()
-        cur.execute("SELECT STOCK, DATE FROM revenue WHERE STOCK = '%s' AND VERSION = '%s'" % (stock, version))
+        cur.execute("SELECT STOCK, DATE FROM "+table_name+" WHERE STOCK = '%s' AND VERSION = '%s'" % (stock, version))
         result = cur.fetchall()
         existing_dates = []
         for row in result:
@@ -50,23 +59,23 @@ class MorningStartDB:
             existing_dates.append(date)
         cur.close()
         existing_dates = set(existing_dates)
-
+        # Insert to update the financial values in the database
         cur = self._conn.cursor()
-        sql_insert = "INSERT INTO revenue(STOCK, DATE, VERSION, REVENUE_IN_MILLION	) VALUES('%s','%s','%s','%s')"
-        sql_update = "UPDATE revenue SET REVENUE_IN_MILLION = '%s' WHERE STOCK = '%s' AND DATE = '%s' " \
+        sql_insert = "INSERT INTO " + table_name + "(STOCK, DATE, VERSION, " + column_name + \
+                     ") VALUES('%s','%s','%s','%s')"
+        sql_update = "UPDATE " + table_name + " SET "+column_name+" = '%s' WHERE STOCK = '%s' AND DATE = '%s' " \
                      " AND VERSION = '%s'"
-
-        for date in revenue_in_millions:
-            revenue = revenue_in_millions[date]
-            date_format = self._formate_date(date)
+        for date in date_values:
+            value = date_values[date]
+            date_format = MorningStartDB._format_date(date)
             if date_format in existing_dates:
-                cur.execute(sql_update % (revenue, stock, date_format, version))
+                cur.execute(sql_update % (value, stock, date_format, version))
             else:
-                cur.execute(sql_insert % (stock, date_format, version, revenue))
+                cur.execute(sql_insert % (stock, date_format, version, value))
         cur.close()
-        self._conn.commit()
 
-    def _formate_date(self, date_str):
+    @staticmethod
+    def _format_date(date_str):
         try:
             datetime.datetime.strptime(date_str, '%Y-%m')
             return date_str + "-01"
