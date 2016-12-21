@@ -53,10 +53,10 @@ class MorningStarFetcher:
         dates = self._get_dates(line_dates)
 
         # Get the financial values
-        financial.revenue_in_millions = \
+        financial.revenue_mil = \
             MorningStarFetcher._parse_financial_with_dates(lines, dates, self.REVENUE_LINE_PREFIX)
 
-        financial.net_income_in_millions = \
+        financial.net_income_mil = \
             MorningStarFetcher._parse_financial_with_dates(lines, dates, self.NET_INCOME_LINE_PREFIX)
 
         financial.book_value_per_share = \
@@ -70,12 +70,12 @@ class MorningStarFetcher:
             raise MorningStarFetcherException("Cannot find "+line_prefix+ " line.")
         line = lines[line_idx]
         tokens = MorningStarFetcher._parse_csv_line(line)
-        for i in range(1, len(tokens)-2):
+        for i in range(1, len(tokens)):
             token = tokens[i].replace(',', '').strip()
             if len(token) == 0:
                 continue
             value = float(token)
-            date = dates[i]
+            date = dates[i-1]
             values[date] = value
         return values
 

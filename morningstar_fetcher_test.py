@@ -3,7 +3,7 @@ import morningstar_db as db
 
 
 fetcher = fetcher.MorningStarFetcher()
-financial = fetcher.fetch('AAPL')
+financial = fetcher.fetch('EQIX')
 
 print financial.debug_info()
 

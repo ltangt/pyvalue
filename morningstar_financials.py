@@ -5,13 +5,14 @@
 
 class MorningStarFinancial(object):
     _stock = ""
-    _revenue_in_millions = {}  # the key is the date and the value is the revenue in millions
-    _net_income_in_millions = {}  # the key is the date and the value is the net income in millions
-    _book_value_per_share = {} # the key is the date and the value is the book value per share
+    _revenue_mil = {}  # the key is the date and the value is the revenue in millions
+    _net_income_mil = {}  # the key is the date and the value is the net income in millions
+    _book_value_per_share = {}  # the key is the date and the value is the book value per share
+    _share_mil = {}  # the total number of shares
 
     def __init__(self, stock, revenue = {}):
         self._stock = stock
-        self._revenue_in_millions = revenue
+        self._revenue_mil = revenue
         return
 
     @property
@@ -19,20 +20,20 @@ class MorningStarFinancial(object):
         return self._stock
 
     @property
-    def revenue_in_millions(self):
-        return self._revenue_in_millions
+    def revenue_mil(self):
+        return self._revenue_mil
 
-    @revenue_in_millions.setter
-    def revenue_in_millions(self, revenue):
-        self._revenue_in_millions = revenue
+    @revenue_mil.setter
+    def revenue_mil(self, revenue):
+        self._revenue_mil = revenue
 
     @property
-    def net_income_in_millions(self):
-        return self._net_income_in_millions
+    def net_income_mil(self):
+        return self._net_income_mil
 
-    @net_income_in_millions.setter
-    def net_income_in_millions(self, net_income):
-        self._net_income_in_millions = net_income
+    @net_income_mil.setter
+    def net_income_mil(self, net_income):
+        self._net_income_mil = net_income
 
     @property
     def book_value_per_share(self):
@@ -45,9 +46,9 @@ class MorningStarFinancial(object):
     def debug_info(self):
         info = self._stock
         info += " : revenue =>"
-        info += str(self._revenue_in_millions)
+        info += str(self._revenue_mil)
         info += "\n net_income => "
-        info += str(self._net_income_in_millions)
+        info += str(self._net_income_mil)
         info += "\n book_value => "
         info += str(self.book_value_per_share)
         return info
