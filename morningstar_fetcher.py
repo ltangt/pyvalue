@@ -4,6 +4,7 @@
 import urllib2
 import StringIO
 import csv
+import sys
 import morningstar_financials
 
 
@@ -15,7 +16,11 @@ class MorningStarFetcher:
     FINANCIAL_HEADER = "Financials"
     REVENUE_LINE_PREFIX = "Revenue USD Mil"
     NET_INCOME_LINE_PREFIX = "Net Income USD Mil"
-    BOOK_VALUE_PER_SHARE = "Book Value Per Share"
+    BOOK_VALUE_PER_SHARE_PREFIX = "Book Value Per Share"
+    SHARE_MIL_PREFIX = "Shares Mil"
+    OPERATING_INCOME_PREFIX = "Operating Income USD Mil"
+    GROSS_MARGIN = "Operating Margin"
+    DIVIDENDS = "Dividends USD"
 
     def __init__(self):
         return
@@ -36,8 +41,10 @@ class MorningStarFetcher:
                 financial = morningstar_financials.MorningStarFinancial(stock)
                 self._parse_html(html, financial)
                 return financial
-            except MorningStarFetcherException:
-                pass
+            except (MorningStarFetcherException, urllib2.HTTPError) as err:
+                print stock + " : " + err.message + " in the "+str((try_idx+1))+" time"
+                if try_idx == num_retries - 1:
+                    sys.stderr.write('Failed to retrieve information for '+stock+'\n')
 
     def _parse_html(self, html, financial):
         lines = html.split("\n")
@@ -60,14 +67,28 @@ class MorningStarFetcher:
             MorningStarFetcher._parse_financial_with_dates(lines, dates, self.NET_INCOME_LINE_PREFIX)
 
         financial.book_value_per_share = \
-            MorningStarFetcher._parse_financial_with_dates(lines, dates, self.BOOK_VALUE_PER_SHARE)
+            MorningStarFetcher._parse_financial_with_dates(lines, dates, self.BOOK_VALUE_PER_SHARE_PREFIX)
+
+        financial.share_mil = \
+            MorningStarFetcher._parse_financial_with_dates(lines, dates, self.SHARE_MIL_PREFIX)
+
+        financial.operating_income_mil = \
+            MorningStarFetcher._parse_financial_with_dates(lines, dates, self.OPERATING_INCOME_PREFIX)
+
+        gross_margin = \
+            MorningStarFetcher._parse_financial_with_dates(lines, dates, self.GROSS_MARGIN)
+        # change the percentage number into real numbers
+        financial.gross_margin = dict((date, value/100.0) for date, value in gross_margin.items())
+
+        financial.dividends = \
+            MorningStarFetcher._parse_financial_with_dates(lines, dates, self.DIVIDENDS)
 
     @staticmethod
     def _parse_financial_with_dates(lines, dates, line_prefix):
         values = {}
         line_idx = MorningStarFetcher._find_line_startwith(lines, line_prefix)
         if line_idx == -1:
-            raise MorningStarFetcherException("Cannot find "+line_prefix+ " line.")
+            raise MorningStarFetcherException("Cannot find " + line_prefix + " line.")
         line = lines[line_idx]
         tokens = MorningStarFetcher._parse_csv_line(line)
         for i in range(1, len(tokens)):

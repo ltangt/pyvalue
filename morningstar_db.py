@@ -38,14 +38,24 @@ class MorningStartDB:
     def close(self):
         self._conn.close()
 
-    def update(self, financial, version='1'):
+    def update(self, financial, version='1', columns=None):
         stock = financial.stock
-        self._update_date_values(stock, financial.revenue_mil, version,
-                                 'morningstar_annual_revenue', 'REVENUE_MIL')
-        self._update_date_values(stock, financial.net_income_mil, version,
-                                 'morningstar_annual_net_income', 'NET_INCOME_MIL')
-        self._update_date_values(stock, financial.book_value_per_share, version,
-                                 'morningstar_book_value_per_share', 'BOOK_VALUE_PER_SHARE')
+        # The key is the column name, the value is a tuple of attribute and table name
+        table_columns = {
+            'REVENUE_MIL': ('revenue_mil', 'morningstar_annual_revenue'),
+            'NET_INCOME_MIL': ('net_income_mil', 'morningstar_annual_net_income'),
+            'BOOK_VALUE_PER_SHARE': ('book_value_per_share', 'morningstar_book_value_per_share'),
+            'SHARE_MIL': ('share_mil', 'morningstar_share_outstanding'),
+            'OPERATING_INCOME_MIL': ('operating_income_mil', 'morningstar_annual_operating_income'),
+            'GROSS_MARGIN': ('gross_margin', 'morningstar_annual_gross_margin'),
+            'DIVIDENDS': ('dividends', 'morningstar_annual_dividends'),
+        }
+        for column in table_columns:
+            if columns is None or column in columns:
+                method_name = table_columns.get(column)[0]
+                table_name = table_columns.get(column)[1]
+                self._update_date_values(stock, getattr(financial, method_name), version,
+                                         table_name, column)
         self._conn.commit()
 
     # Update the revenue, net_income and other financial values with dates in the database

@@ -28,7 +28,7 @@ def update_stock_morningstar(stock):
     db.close()
 
 
-def update_sp500_morningstars():
+def update_sp500_morningstars(columns=None):
     fetcher = morningstar_fetcher.MorningStarFetcher()
     db = morningstar_db.MorningStartDB()
     db.connect()
@@ -38,7 +38,7 @@ def update_sp500_morningstars():
         if financial is None:
             sys.stdout.write("no result for " + stock)
         else:
-            db.update(financial)
+            db.update(financial, columns=columns)
             sys.stdout.write("updated " + stock)
         sys.stdout.write(" , "+str(num_stock_updated+1) + " stocks processed. \n")
         num_stock_updated += 1
