@@ -38,28 +38,40 @@ class MorningStartDB:
     def close(self):
         self._conn.close()
 
-    def update(self, financial, version='1', columns=None):
+    def update(self, financial, version='1', columns=None, overwrite=True):
         stock = financial.stock
-        # The key is the column name, the value is a tuple of attribute and table name
+        # The key is the column name, the value is a tuple of value attribute, currency attribute, and the table name
         table_columns = {
-            'REVENUE_MIL': ('revenue_mil', 'morningstar_annual_revenue'),
-            'NET_INCOME_MIL': ('net_income_mil', 'morningstar_annual_net_income'),
-            'BOOK_VALUE_PER_SHARE': ('book_value_per_share', 'morningstar_book_value_per_share'),
-            'SHARE_MIL': ('share_mil', 'morningstar_share_outstanding'),
-            'OPERATING_INCOME_MIL': ('operating_income_mil', 'morningstar_annual_operating_income'),
-            'GROSS_MARGIN': ('gross_margin', 'morningstar_annual_gross_margin'),
-            'DIVIDENDS': ('dividends', 'morningstar_annual_dividends'),
+            'REVENUE_MIL': ('revenue_mil', 'revenue_currency', 'morningstar_annual_revenue'),
+            'NET_INCOME_MIL': ('net_income_mil', 'net_income_currency', 'morningstar_annual_net_income'),
+            'BOOK_VALUE_PER_SHARE': ('book_value_per_share', 'book_value_currency', 'morningstar_book_value_per_share'),
+            'SHARE_MIL': ('share_mil', None, 'morningstar_share_outstanding'),
+            'OPERATING_INCOME_MIL': ('operating_income_mil', 'operating_income_currency',
+                                     'morningstar_annual_operating_income'),
+            'GROSS_MARGIN': ('gross_margin', None, 'morningstar_annual_gross_margin'),
+            'DIVIDENDS': ('dividends', 'dividend_currency', 'morningstar_annual_dividends'),
+            'CURRENT_RATIO': ('current_ratio', None, 'morningstar_current_ratio'),
+            'DEBT_TO_EQUITY': ('debt_to_equity', None, 'morningstar_debt_to_equity'),
         }
+        has_updated = False
         for column in table_columns:
             if columns is None or column in columns:
-                method_name = table_columns.get(column)[0]
-                table_name = table_columns.get(column)[1]
-                self._update_date_values(stock, getattr(financial, method_name), version,
-                                         table_name, column)
+                value_attr_name = table_columns.get(column)[0]
+                currency_attr_name = table_columns.get(column)[1]
+                table_name = table_columns.get(column)[2]
+                date_values = getattr(financial, value_attr_name)
+                currency = getattr(financial, currency_attr_name) if currency_attr_name is not None else None
+                ret = self._update_date_values(stock, date_values, currency, version,
+                                               table_name, column, overwrite)
+                has_updated |= ret
         self._conn.commit()
+        return has_updated
 
     # Update the revenue, net_income and other financial values with dates in the database
-    def _update_date_values(self, stock, date_values, version, table_name, column_name):
+    # Return whether the row in database has been updated or not
+    def _update_date_values(self, stock, date_values, currency, version, table_name, column_name, overwrite):
+        if currency is not None:
+            currency = currency.upper()
         # extract the existing records of the stock and version
         cur = self._conn.cursor()
         cur.execute("SELECT STOCK, DATE FROM "+table_name+" WHERE STOCK = '%s' AND VERSION = '%s'" % (stock, version))
@@ -74,12 +86,28 @@ class MorningStartDB:
         cur = self._conn.cursor()
         sql_insert = "INSERT INTO " + table_name + "(STOCK, DATE, VERSION, " + column_name + \
                      ") VALUES('%s','%s','%s','%s')"
+        sql_insert_currency = "INSERT INTO " + table_name + "(STOCK, DATE, VERSION, " + column_name + \
+                              ", CURRENCY) VALUES('%s','%s','%s','%s', '%s')"
         sql_update = "UPDATE " + table_name + " SET "+column_name+" = '%s' WHERE STOCK = '%s' AND DATE = '%s' " \
                      " AND VERSION = '%s'"
+        sql_update_currency = "UPDATE " + table_name + " SET " + column_name + " = '%s', " + \
+                              " CURRENCY = '%s' WHERE STOCK = '%s' AND DATE = '%s' " + \
+                              " AND VERSION = '%s'"
+        has_updated = False
         for date in date_values:
             value = date_values[date]
             if date in existing_dates:
-                cur.execute(sql_update % (value, stock, date, version))
+                if overwrite:
+                    if currency is None:
+                        cur.execute(sql_update % (value, stock, date, version))
+                    else:
+                        cur.execute(sql_update_currency % (value, currency, stock, date, version))
+                    has_updated = True
             else:
-                cur.execute(sql_insert % (stock, date, version, value))
+                if currency is None:
+                    cur.execute(sql_insert % (stock, date, version, value))
+                else:
+                    cur.execute(sql_insert_currency % (stock, date, version, value, currency))
+                has_updated = True
         cur.close()
+        return has_updated
