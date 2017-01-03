@@ -3,7 +3,7 @@ import morningstar_db
 import stock_scorer
 
 
-class ScorerTest(unittest.TestCase):
+class StockScorerTest(unittest.TestCase):
 
     @staticmethod
     def test_debt_to_assert_scorer():

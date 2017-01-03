@@ -180,3 +180,22 @@ def convert_date(date_text):
         return last_qrt
     else:
         return datetime.datetime.strptime(date_text, "%Y-%m")
+
+
+def cmp_date(date_text1, date_text2):
+    """
+    Compare two date strings, which are the keys of the financial date values
+    :param date_text1:
+    :type date1: str
+    :param date_text2:
+    :type date_text2: str
+    :return:
+    """
+    date1 = convert_date(date_text1)
+    date2 = convert_date(date_text2)
+    if date1 == date2:
+        return 0
+    elif date1 > date2:
+        return 1
+    else:
+        return -1
