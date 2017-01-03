@@ -2,7 +2,7 @@
 # Author: Liang Tang
 # License: BSD
 import pymysql
-import datetime
+import morningstar_financials
 
 
 class MorningStartDB:
@@ -13,6 +13,19 @@ class MorningStartDB:
     _db_username = ""
     _db_password = ""
     _conn = None
+    # The key is the column name, the value is a tuple of value attribute, currency attribute, and the table name
+    TABLE_COLUMNS = {
+        'REVENUE_MIL': ('revenue_mil', 'revenue_currency', 'morningstar_annual_revenue'),
+        'NET_INCOME_MIL': ('net_income_mil', 'net_income_currency', 'morningstar_annual_net_income'),
+        'BOOK_VALUE_PER_SHARE': ('book_value_per_share', 'book_value_currency', 'morningstar_book_value_per_share'),
+        'SHARE_MIL': ('share_mil', None, 'morningstar_share_outstanding'),
+        'OPERATING_INCOME_MIL': ('operating_income_mil', 'operating_income_currency',
+                                 'morningstar_annual_operating_income'),
+        'GROSS_MARGIN': ('gross_margin', None, 'morningstar_annual_gross_margin'),
+        'DIVIDENDS': ('dividends', 'dividend_currency', 'morningstar_annual_dividends'),
+        'CURRENT_RATIO': ('current_ratio', None, 'morningstar_current_ratio'),
+        'DEBT_TO_EQUITY': ('debt_to_equity', None, 'morningstar_debt_to_equity'),
+    }
 
     def __init__(self):
         tmp_file = open(self.DB_ACCOUNT_FILE, "r")
@@ -39,26 +52,23 @@ class MorningStartDB:
         self._conn.close()
 
     def update(self, financial, version='1', columns=None, overwrite=True):
+        """
+        Update or insert the financial data into the database
+        :param financial: the morningstar financial object of the stock
+        :type financial: morningstar_financials.MorningStarFinancial
+        :param version:
+        :param columns:
+        :param overwrite:
+        :return:
+        """
         stock = financial.stock
-        # The key is the column name, the value is a tuple of value attribute, currency attribute, and the table name
-        table_columns = {
-            'REVENUE_MIL': ('revenue_mil', 'revenue_currency', 'morningstar_annual_revenue'),
-            'NET_INCOME_MIL': ('net_income_mil', 'net_income_currency', 'morningstar_annual_net_income'),
-            'BOOK_VALUE_PER_SHARE': ('book_value_per_share', 'book_value_currency', 'morningstar_book_value_per_share'),
-            'SHARE_MIL': ('share_mil', None, 'morningstar_share_outstanding'),
-            'OPERATING_INCOME_MIL': ('operating_income_mil', 'operating_income_currency',
-                                     'morningstar_annual_operating_income'),
-            'GROSS_MARGIN': ('gross_margin', None, 'morningstar_annual_gross_margin'),
-            'DIVIDENDS': ('dividends', 'dividend_currency', 'morningstar_annual_dividends'),
-            'CURRENT_RATIO': ('current_ratio', None, 'morningstar_current_ratio'),
-            'DEBT_TO_EQUITY': ('debt_to_equity', None, 'morningstar_debt_to_equity'),
-        }
+
         has_updated = False
-        for column in table_columns:
+        for column in self.TABLE_COLUMNS:
             if columns is None or column in columns:
-                value_attr_name = table_columns.get(column)[0]
-                currency_attr_name = table_columns.get(column)[1]
-                table_name = table_columns.get(column)[2]
+                value_attr_name = self.TABLE_COLUMNS.get(column)[0]
+                currency_attr_name = self.TABLE_COLUMNS.get(column)[1]
+                table_name = self.TABLE_COLUMNS.get(column)[2]
                 date_values = getattr(financial, value_attr_name)
                 currency = getattr(financial, currency_attr_name) if currency_attr_name is not None else None
                 ret = self._update_date_values(stock, date_values, currency, version,
@@ -111,3 +121,42 @@ class MorningStartDB:
                 has_updated = True
         cur.close()
         return has_updated
+
+    def retrieve(self, stock, version='1'):
+        financial = morningstar_financials.MorningStarFinancial(stock)
+        for column in self.TABLE_COLUMNS:
+            value_attr_name = self.TABLE_COLUMNS.get(column)[0]
+            currency_attr_name = self.TABLE_COLUMNS.get(column)[1]
+            table_name = self.TABLE_COLUMNS.get(column)[2]
+            has_currency = currency_attr_name is not None
+            date_values, currency = self._retrieve_date_values(stock, table_name, column, has_currency, version)
+            if len(date_values) > 0:
+                setattr(financial, value_attr_name, date_values)
+                if has_currency:
+                    assert currency is not None
+                    setattr(financial, currency_attr_name, currency)
+        return financial
+
+    def _retrieve_date_values(self, stock, table_name, column_name, has_currency, version='1'):
+        sql_select_currency = "SELECT DATE, " + column_name + ", CURRENCY " +\
+                              " FROM " + table_name +\
+                              " WHERE STOCK = '%s' AND VERSION = '%s'"
+        sql_select = "SELECT DATE, " + column_name + \
+                     " FROM " + table_name + \
+                     " WHERE STOCK = '%s' AND VERSION = '%s'"
+        cur = self._conn.cursor()
+        if has_currency:
+            cur.execute(sql_select_currency % (stock, version))
+        else:
+            cur.execute(sql_select % (stock, version))
+        result = cur.fetchall()
+        date_values = {}
+        currency = None
+        for row in result:
+            date = row[0]
+            value = float(row[1])
+            if has_currency:
+                currency = row[2]
+            date_values[date] = value
+        cur.close()
+        return date_values, currency

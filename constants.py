@@ -52,3 +52,5 @@ sp500_2015_10 = [
     'WAT', 'WBA', 'WDC', 'WEC', 'WFC', 'WFM', 'WHR', 'WM', 'WMB', 'WMT', 'WRK',
     'WU', 'WY', 'WYN', 'WYNN', 'XEC', 'XEL', 'XL', 'XLNX', 'XOM', 'XRAY', 'XRX',
     'XYL', 'YHOO', 'YUM', 'ZBH', 'ZION', 'ZTS']
+
+US_10Y_NOTE_YIELD = 0.02543
