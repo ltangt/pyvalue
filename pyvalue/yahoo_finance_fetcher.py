@@ -4,6 +4,7 @@
 import datetime
 from yahoo_finance import Share
 from yahoo_finance_financials import YahooFinanceFinancial
+from dateutil.parser import parse
 
 
 class YahooFinanceFetcherException(Exception):
@@ -23,7 +24,7 @@ class YahooFinanceFetcher:
 
     def _fetch(self, stock, share):
         f = YahooFinanceFinancial(stock)
-        f.datetime = datetime.datetime.now()
+        f.trade_datetime = parse(share.get_trade_datetime())
         f.price = self._float_val(share, "get_price")
         f.days_high = self._float_val(share, "get_days_high")
         f.days_low = self._float_val(share, "get_days_low")

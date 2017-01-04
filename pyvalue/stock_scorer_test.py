@@ -1,5 +1,5 @@
 import unittest
-import morningstar_db
+
 import stock_scorer
 
 
@@ -7,7 +7,7 @@ class StockScorerTest(unittest.TestCase):
 
     @staticmethod
     def test_debt_to_assert_scorer():
-        db = morningstar_db.MorningStartDB()
+        db = db.MorningStartDB()
         db.connect()
         apple = db.retrieve('AAPL')
         debt_assert_scorer = stock_scorer.DebtToAssertScorer()
@@ -21,7 +21,7 @@ class StockScorerTest(unittest.TestCase):
 
     @staticmethod
     def test_current_ratio_scorer():
-        db = morningstar_db.MorningStartDB()
+        db = db.MorningStartDB()
         db.connect()
         apple = db.retrieve('AAPL')
         scorer = stock_scorer.CurrentRatioScorer()

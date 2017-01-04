@@ -4,8 +4,12 @@
 import datetime
 
 
-class MorningStarFinancial(object):
+class Financial(object):
     __stock = ""
+    """
+    All the properties (except for the currency) are the dictionary data structure,
+    where the key is the date in form of "YYYY-mm-dd" and the value is actual value.
+    """
     __revenue_mil = {}  # the key is the date and the value is the revenue in millions
     __revenue_currency = None  # the currency of the revenue, e.g., USD
     __net_income_mil = {}  # the key is the date and the value is the net income in millions
@@ -20,6 +24,11 @@ class MorningStarFinancial(object):
     __dividend_currency = None  # the currency of the dividend, e.g., USD
     __debt_to_equity = {}  # the debt/equity
     __current_ratio = {}  # the current ratio
+    __stock_daily_close_price = {}  # the historical close price for each day
+    __stock_daily_open_price = {}  # the historical open price for each day
+    __stock_daily_highest_price = {}  # the historical highest price for each day
+    __stock_daily_lowest_price = {}  # the historical lowest price for each day
+    __stock_daily_price_currency = None  # the currency of the stock price for each day
 
     def __init__(self, stock, revenue={}):
         self.__stock = stock
@@ -142,6 +151,46 @@ class MorningStarFinancial(object):
     def current_ratio(self, current_ratio):
         self.__current_ratio = current_ratio
 
+    @property
+    def stock_daily_open_price(self):
+        return self.__stock_daily_open_price
+
+    @stock_daily_open_price.setter
+    def stock_daily_open_price(self, value):
+        self.__stock_daily_open_price = value
+
+    @property
+    def stock_daily_close_price(self):
+        return self.__stock_daily_close_price
+
+    @stock_daily_close_price.setter
+    def stock_daily_close_price(self, value):
+        self.__stock_daily_close_price = value
+
+    @property
+    def stock_daily_highest_price(self):
+        return self.__stock_daily_highest_price
+
+    @stock_daily_highest_price.setter
+    def stock_daily_highest_price(self, value):
+        self.__stock_daily_highest_price = value
+
+    @property
+    def stock_daily_lowest_price(self):
+        return self.__stock_daily_lowest_price
+
+    @stock_daily_lowest_price.setter
+    def stock_daily_lowest_price(self, value):
+        self.__stock_daily_lowest_price = value
+
+    @property
+    def stock_daily_price_currency(self):
+        return self.__stock_daily_price_currency
+
+    @stock_daily_price_currency.setter
+    def stock_daily_price_currency(self, value):
+        self.__stock_daily_price_currency = value
+
     def debug_info(self):
         info = self.__stock
         info += " : revenue =>"
@@ -162,6 +211,14 @@ class MorningStarFinancial(object):
         info += str(self.debt_to_equity)
         info += "\n current_ratio => "
         info += str(self.current_ratio)
+        info += "\n stock_daily_close_price =>"
+        info += str(self.stock_daily_close_price)
+        info += "\n stock_daily_open_price =>"
+        info += str(self.stock_daily_open_price)
+        info += "\n stock_daily_highest_price =>"
+        info += str(self.stock_daily_highest_price)
+        info += "\n stock_daily_lowest_price =>"
+        info += str(self.stock_daily_lowest_price)
         return info
 
 

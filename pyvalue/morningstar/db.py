@@ -2,10 +2,11 @@
 # Author: Liang Tang
 # License: BSD
 import pymysql
-import morningstar_financials
+
+import financial
 
 
-class MorningStartDB:
+class DB:
     DB_ACCOUNT_FILE = "mysql_account.txt"
     DB_NAME = "investment"
     _db_server = ""
@@ -14,7 +15,7 @@ class MorningStartDB:
     _db_password = ""
     _conn = None
     # The key is the column name, the value is a tuple of value attribute, currency attribute, and the table name
-    TABLE_COLUMNS = {
+    FUNDAMENTAL_TABLE_COLUMNS = {
         'REVENUE_MIL': ('revenue_mil', 'revenue_currency', 'morningstar_annual_revenue'),
         'NET_INCOME_MIL': ('net_income_mil', 'net_income_currency', 'morningstar_annual_net_income'),
         'BOOK_VALUE_PER_SHARE': ('book_value_per_share', 'book_value_currency', 'morningstar_book_value_per_share'),
@@ -25,6 +26,12 @@ class MorningStartDB:
         'DIVIDENDS': ('dividends', 'dividend_currency', 'morningstar_annual_dividends'),
         'CURRENT_RATIO': ('current_ratio', None, 'morningstar_current_ratio'),
         'DEBT_TO_EQUITY': ('debt_to_equity', None, 'morningstar_debt_to_equity'),
+    }
+    STOCK_PRICE_TABLE_COLUMNS = {
+        'CLOSE_PRICE': ( 'stock_daily_close_price', 'stock_daily_price_currency', 'morningstar_stock_price'),
+        'OPEN_PRICE': ('stock_daily_open_price', None, 'morningstar_stock_price'),
+        'HIGHEST_PRICE': ('stock_daily_highest_price', None, 'morningstar_stock_price'),
+        'LOWEST_PRICE': ('stock_daily_lowest_price', None, 'morningstar_stock_price'),
     }
 
     def __init__(self):
@@ -51,35 +58,58 @@ class MorningStartDB:
     def close(self):
         self._conn.close()
 
-    def update(self, financial, version='1', columns=None, overwrite=True):
+    def update_fundamentals(self, fin, version='1', columns=None, overwrite=True):
         """
         Update or insert the financial data into the database
-        :param financial: the morningstar financial object of the stock
-        :type financial: morningstar_financials.MorningStarFinancial
+        :param fin: the morningstar financial object of the stock
+        :type fin: financial.Financial
         :param version:
         :param columns:
         :param overwrite:
         :return:
         """
-        stock = financial.stock
+        stock = fin.stock
 
         has_updated = False
-        for column in self.TABLE_COLUMNS:
+        for column in DB.FUNDAMENTAL_TABLE_COLUMNS:
             if columns is None or column in columns:
-                value_attr_name = self.TABLE_COLUMNS.get(column)[0]
-                currency_attr_name = self.TABLE_COLUMNS.get(column)[1]
-                table_name = self.TABLE_COLUMNS.get(column)[2]
-                date_values = getattr(financial, value_attr_name)
-                currency = getattr(financial, currency_attr_name) if currency_attr_name is not None else None
-                ret = self._update_date_values(stock, date_values, currency, version,
-                                               table_name, column, overwrite)
+                value_attr_name = DB.FUNDAMENTAL_TABLE_COLUMNS.get(column)[0]
+                currency_attr_name = DB.FUNDAMENTAL_TABLE_COLUMNS.get(column)[1]
+                table_name = DB.FUNDAMENTAL_TABLE_COLUMNS.get(column)[2]
+                date_values = getattr(fin, value_attr_name)
+                currency = getattr(fin, currency_attr_name) if currency_attr_name is not None else None
+                ret = self.__update_single_column(stock, date_values, currency, version,
+                                                  table_name, column, overwrite)
                 has_updated |= ret
         self._conn.commit()
         return has_updated
 
-    # Update the revenue, net_income and other financial values with dates in the database
+    def update_stock_prices(self, fin, version='1', overwrite=True):
+        """
+        Update or insert the financial data into the database
+        :param fin: the morningstar financial object of the stock
+        :type fin: financial.Financial
+        :param version:
+        :param overwrite:
+        :return:
+        """
+        stock = fin.stock
+        has_updated = False
+        for column in DB.STOCK_PRICE_TABLE_COLUMNS:
+            value_attr_name = DB.STOCK_PRICE_TABLE_COLUMNS.get(column)[0]
+            currency_attr_name = DB.STOCK_PRICE_TABLE_COLUMNS.get(column)[1]
+            table_name = DB.STOCK_PRICE_TABLE_COLUMNS.get(column)[2]
+            date_values = getattr(fin, value_attr_name)
+            currency = getattr(fin, currency_attr_name) if currency_attr_name is not None else None
+            ret = self.__update_single_column(stock, date_values, currency, version,
+                                              table_name, column, overwrite)
+            has_updated |= ret
+        self._conn.commit()
+        return has_updated
+
+    # Update the single column value, such as revenue, net_income and other financial values with dates in the database
     # Return whether the row in database has been updated or not
-    def _update_date_values(self, stock, date_values, currency, version, table_name, column_name, overwrite):
+    def __update_single_column(self, stock, date_values, currency, version, table_name, column_name, overwrite):
         if currency is not None:
             currency = currency.upper()
         # extract the existing records of the stock and version
@@ -123,21 +153,21 @@ class MorningStartDB:
         return has_updated
 
     def retrieve(self, stock, version='1'):
-        financial = morningstar_financials.MorningStarFinancial(stock)
-        for column in self.TABLE_COLUMNS:
-            value_attr_name = self.TABLE_COLUMNS.get(column)[0]
-            currency_attr_name = self.TABLE_COLUMNS.get(column)[1]
-            table_name = self.TABLE_COLUMNS.get(column)[2]
+        fin = financial.Financial(stock)
+        for column in self.FUNDAMENTAL_TABLE_COLUMNS:
+            value_attr_name = self.FUNDAMENTAL_TABLE_COLUMNS.get(column)[0]
+            currency_attr_name = self.FUNDAMENTAL_TABLE_COLUMNS.get(column)[1]
+            table_name = self.FUNDAMENTAL_TABLE_COLUMNS.get(column)[2]
             has_currency = currency_attr_name is not None
-            date_values, currency = self._retrieve_date_values(stock, table_name, column, has_currency, version)
+            date_values, currency = self.__retrieve_date_values(stock, table_name, column, has_currency, version)
             if len(date_values) > 0:
-                setattr(financial, value_attr_name, date_values)
+                setattr(fin, value_attr_name, date_values)
                 if has_currency:
                     assert currency is not None
-                    setattr(financial, currency_attr_name, currency)
-        return financial
+                    setattr(fin, currency_attr_name, currency)
+        return fin
 
-    def _retrieve_date_values(self, stock, table_name, column_name, has_currency, version='1'):
+    def __retrieve_date_values(self, stock, table_name, column_name, has_currency, version='1'):
         sql_select_currency = "SELECT DATE, " + column_name + ", CURRENCY " +\
                               " FROM " + table_name +\
                               " WHERE STOCK = '%s' AND VERSION = '%s'"

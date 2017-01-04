@@ -1,10 +1,11 @@
 # The valuation model for a stock
 # Author: Liang Tang
 # License: BSD
-import morningstar_financials
-import constants
 import numpy as np
-from sklearn import datasets, linear_model
+from sklearn import linear_model
+
+import constants
+from morningstar import financial
 
 
 class StockIntrinsicValue:
@@ -17,7 +18,7 @@ class StockIntrinsicValue:
         """
         Compute the intrinsic value of a stock share
         :param financial: the morningstar financial object of the stock
-        :type financial: morningstar_financials.MorningStarFinancial
+        :type financial: financial.Financial
         :param ys: the number of years for estimation
         :type ys: int
         :param risk_free_rate: the rate of US 10 years note (risk free 'ys' years return)
@@ -37,7 +38,7 @@ class StockIntrinsicValue:
         """
         Compute the predicted book value after a number of years
         :param financial: the morningstar financial object of the stock
-        :type financial: morningstar_financials.MorningStarFinancial
+        :type financial: financial.Financial
         :param num_yrs: the number of years
         :type num_yrs: int
         :return: the predicted book value after 'num_yrs' years
@@ -49,7 +50,7 @@ class StockIntrinsicValue:
         x_vals = np.array(range(n))
         x_vals.shape = (n, 1)
         book_values = financial.book_value_per_share
-        sorted_dates = sorted(book_values.keys(), cmp=morningstar_financials.cmp_date)
+        sorted_dates = sorted(book_values.keys(), cmp=financial.cmp_date)
         y_vals = [book_values.get(date_str) for date_str in sorted_dates]
 
         # Create linear regression object
@@ -71,7 +72,7 @@ class StockIntrinsicValue:
         """
         Compute the predicted dividend (in dollar) per year in the next 10 years
         :param financial: the morningstar financial object of the stock
-        :type financial: morningstar_financials.MorningStarFinancial
+        :type financial: financial.Financial
         :return:
         """
         if 'TTM' not in financial.dividends:

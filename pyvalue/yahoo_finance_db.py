@@ -54,7 +54,7 @@ class YahooFinanceDB:
         # Insert to update the financial values in the database
         cur = self._conn.cursor()
         sql_insert = "INSERT INTO " + self.DB_TABLE + \
-                     "  (STOCK, DATETIME, VERSION, " \
+                     "  (STOCK, TRADE_DATETIME, VERSION, " \
                      "  PRICE, DAYS_HIGH, DAYS_LOW, PRICE_CHANGE, " \
                      "  VOLUME, MARKET_CAP_IN_MILLIONS, BOOK_VALUE," \
                      "  EBITDA_IN_MILLIONS, DIVIDEND_SHARE, DIVIDEND_YIELD, EARNING_SHARE, " \
@@ -78,9 +78,9 @@ class YahooFinanceDB:
                      "  EARNING_SHARE = %s, " \
                      "  PRICE_BOOK = %s, " \
                      "  PRICE_SALES = %s, " \
-                     "WHERE STOCK = '%s' AND DATE = '%s' " \
+                     "WHERE STOCK = '%s' AND TRADE_DATETIME = '%s' " \
                      " AND VERSION = '%s'"
-        cur_datetime = financial.datetime.strftime('%Y-%m-%d %H:%M:%S')
+        cur_datetime = financial.trade_datetime.strftime('%Y-%m-%d %H:%M:%S') # Only works for UTC timezone
         value_tuple = (financial.price,
                        financial.days_high,
                        financial.days_low,
@@ -97,7 +97,7 @@ class YahooFinanceDB:
                        )
         value_tuple = YahooFinanceDB._process_tuple_value(value_tuple)
         if cur_datetime in existing_dates:
-            value_tuple = value_tuple + (stock, cur_datetime, version)
+            value_tuple += (stock, cur_datetime, version)
             cur.execute(sql_update % value_tuple)
         else:
             value_tuple = (stock, cur_datetime, version) + value_tuple

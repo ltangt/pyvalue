@@ -1,7 +1,6 @@
 # Query stock based on strategies
 # Author: Liang Tang
 # License: BSD
-import morningstar_financials
 
 
 class StockQuery:

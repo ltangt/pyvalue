@@ -5,7 +5,7 @@
 
 class YahooFinanceFinancial(object):
     _stock = ""
-    _datetime = None
+    _trade_datetime = None
     _price = None
     _days_high = None
     _days_low = None
@@ -29,12 +29,12 @@ class YahooFinanceFinancial(object):
         return self._stock
 
     @property
-    def datetime(self):
-        return self._datetime
+    def trade_datetime(self):
+        return self._trade_datetime
 
-    @datetime.setter
-    def datetime(self, datetime):
-        self._datetime = datetime
+    @trade_datetime.setter
+    def trade_datetime(self, datetime):
+        self._trade_datetime = datetime
 
     @property
     def price(self):
@@ -143,7 +143,7 @@ class YahooFinanceFinancial(object):
     def debug_info(self):
         info = self._stock
         info += " : datetime =>"
-        info += str(self.datetime)
+        info += str(self.trade_datetime)
         info += "\n price => "
         info += str(self.price)
         info += "\n days_high => "

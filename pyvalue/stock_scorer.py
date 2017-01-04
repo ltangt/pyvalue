@@ -1,9 +1,10 @@
 # Score a stock based on various features
 # Author: Liang Tang
 # License: BSD
-import morningstar_financials
 import datetime
 from abc import ABCMeta, abstractmethod
+
+from morningstar import financial
 
 
 class StockScorer:
@@ -17,7 +18,7 @@ class StockScorer:
         """
         Compute the score for a stock
         :param financial: the morningstar financial object of the stock
-        :type financial: morningstar_financials.MorningStarFinancial
+        :type financial: financial.Financial
         :return: the score
         """
         raise NotImplementedError()
@@ -39,7 +40,7 @@ def date_values_after(date_values, start_date):
     :type start_date: datetime.datetime
     :return: a sub dictionary where the dates are after the start date
     """
-    date_pairs = dict([(date_str, morningstar_financials.convert_date(date_str)) for date_str in date_values.keys()])
+    date_pairs = dict([(date_str, financial.convert_date(date_str)) for date_str in date_values.keys()])
     after_date_values = {}
     for date_str in date_pairs:
         date = date_pairs[date_str]
@@ -71,7 +72,7 @@ class DebtToAssertScorer(StockScorer):
         """
         Compute the score for a stock
         :param financial: the morningstar financial object of the stock
-        :type financial: morningstar_financials.MorningStarFinancial
+        :type financial: financial.Financial
         :return: the score
         """
         valid_entries = date_values_after(financial.debt_to_equity, self.__start_datetime)
@@ -103,7 +104,7 @@ class CurrentRatioScorer(StockScorer):
         """
         Compute the score for a stock
         :param financial: the morningstar financial object of the stock
-        :type financial: morningstar_financials.MorningStarFinancial
+        :type financial: financial.Financial
         :return: the score
         """
         valid_entries = date_values_after(financial.current_ratio, self.__start_datetime)
