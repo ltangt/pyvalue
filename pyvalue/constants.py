@@ -54,4 +54,3 @@ sp500_2015_10 = [
     'XYL', 'YHOO', 'YUM', 'ZBH', 'ZION', 'ZTS']
 
 US_10Y_NOTE_YIELD = 0.02543
-

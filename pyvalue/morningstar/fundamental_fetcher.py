@@ -7,8 +7,8 @@ import os
 import sys
 import urllib2
 
-import fetcher_exception
-import financial
+from pyvalue.morningstar import fetcher_exception
+from pyvalue.morningstar import financial
 
 
 class FundamentalFetcher:

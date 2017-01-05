@@ -3,11 +3,11 @@
 # License: BSD
 import pymysql
 
-import financial
+from pyvalue.morningstar import financial
+from pyvalue import config
 
 
 class DB:
-    DB_ACCOUNT_FILE = "mysql_account.txt"
     DB_NAME = "investment"
     _db_server = ""
     _db_port = 0
@@ -28,21 +28,18 @@ class DB:
         'DEBT_TO_EQUITY': ('debt_to_equity', None, 'morningstar_debt_to_equity'),
     }
     STOCK_PRICE_TABLE_COLUMNS = {
-        'CLOSE_PRICE': ( 'stock_daily_close_price', 'stock_daily_price_currency', 'morningstar_stock_price'),
+        'CLOSE_PRICE': ('stock_daily_close_price', 'stock_daily_price_currency', 'morningstar_stock_price'),
         'OPEN_PRICE': ('stock_daily_open_price', None, 'morningstar_stock_price'),
         'HIGHEST_PRICE': ('stock_daily_highest_price', None, 'morningstar_stock_price'),
         'LOWEST_PRICE': ('stock_daily_lowest_price', None, 'morningstar_stock_price'),
     }
 
     def __init__(self):
-        tmp_file = open(self.DB_ACCOUNT_FILE, "r")
-        line = tmp_file.readlines()[0]
-        [self._db_server, self._db_port, self._db_username, self._db_password] = line.split(",")
-        self._db_server = self._db_server.strip()
-        self._db_port = int(self._db_port.strip())
-        self._db_username = self._db_username.strip()
-        self._db_password = self._db_password.strip()
-        tmp_file.close()
+        config.init()
+        self._db_server = config.config.get("mysql", "server").strip()
+        self._db_port = int(config.config.get("mysql", "port").strip())
+        self._db_username = config.config.get("mysql", "username").strip()
+        self._db_password = config.config.get("mysql", "password").strip()
         return
 
     def connect(self):

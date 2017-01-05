@@ -1,7 +1,7 @@
 import unittest
 
-import financial
-import stock_price_fetcher
+from pyvalue.morningstar import financial
+from pyvalue.morningstar import stock_price_fetcher
 
 
 class StockPriceFetcherTest(unittest.TestCase):

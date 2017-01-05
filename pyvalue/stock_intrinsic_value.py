@@ -4,8 +4,8 @@
 import numpy as np
 from sklearn import linear_model
 
-import constants
-from morningstar import financial
+from pyvalue import constants
+from pyvalue.morningstar import financial
 
 
 class StockIntrinsicValue:
@@ -34,7 +34,7 @@ class StockIntrinsicValue:
         return iv
 
     @staticmethod
-    def __predict_book_value(financial, num_yrs):
+    def __predict_book_value(fin, num_yrs):
         """
         Compute the predicted book value after a number of years
         :param financial: the morningstar financial object of the stock
@@ -43,13 +43,13 @@ class StockIntrinsicValue:
         :type num_yrs: int
         :return: the predicted book value after 'num_yrs' years
         """
-        n = len(financial.book_value_per_share)
+        n = len(fin.book_value_per_share)
         if n < 2:
             return None
 
         x_vals = np.array(range(n))
         x_vals.shape = (n, 1)
-        book_values = financial.book_value_per_share
+        book_values = fin.book_value_per_share
         sorted_dates = sorted(book_values.keys(), cmp=financial.cmp_date)
         y_vals = [book_values.get(date_str) for date_str in sorted_dates]
 

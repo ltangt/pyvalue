@@ -4,7 +4,7 @@
 import datetime
 from abc import ABCMeta, abstractmethod
 
-from morningstar import financial
+from pyvalue.morningstar import financial
 
 
 class StockScorer:

@@ -4,10 +4,10 @@
 
 import sys
 import datetime
-import constants
-import yahoo_finance_db
-import yahoo_finance_fetcher
-from morningstar import fundamental_fetcher, stock_price_fetcher, financial, db
+from pyvalue import constants
+from pyvalue import yahoo_finance_db
+from pyvalue import yahoo_finance_fetcher
+from pyvalue.morningstar import fundamental_fetcher, stock_price_fetcher, financial, db
 
 
 def daily_job():
@@ -28,11 +28,9 @@ def update_stock_morningstar_fundamental(stock, overwrite=True, use_cache=False)
     db_conn.close()
 
 
-def update_stock_morningstar_stock_price(stock, days=180, overwrite=True, use_cache=False):
+def update_stock_morningstar_stock_price(stock, start_date, end_date, overwrite=True, use_cache=False):
     fetcher = stock_price_fetcher.StockPriceFetcher()
     fin = financial.Financial(stock)
-    end_date = datetime.datetime.now().strftime("%Y-%m-%d")
-    start_date = (datetime.datetime.now() - datetime.timedelta(days=days)).strftime("%Y-%m-%d")
     success = fetcher.fetch(fin, start_date, end_date, use_cache=False)
     if (fin is None) or (not success):
         print "No result"
@@ -65,13 +63,11 @@ def update_sp500_morningstars_fundamental(columns=None, overwrite=True, use_cach
     db_conn.close()
 
 
-def update_sp500_morningstars_stock_price(days=180, overwrite=True, use_cache=False):
+def update_sp500_morningstars_stock_price(start_date, end_date, overwrite=True, use_cache=False):
     fetcher = stock_price_fetcher.StockPriceFetcher()
     db_conn = db.DB()
     db_conn.connect()
     num_stock_updated = 0
-    end_date = datetime.datetime.now().strftime("%Y-%m-%d")
-    start_date = (datetime.datetime.now() - datetime.timedelta(days=days)).strftime("%Y-%m-%d")
     for stock in constants.sp500_2015_10:
         fin = financial.Financial(stock)
         success = fetcher.fetch(fin, start_date, end_date, use_cache=use_cache)

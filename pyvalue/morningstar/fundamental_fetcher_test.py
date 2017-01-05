@@ -1,6 +1,6 @@
-import db
-import fundamental_fetcher
-import financial
+from pyvalue.morningstar import db
+from pyvalue.morningstar import fundamental_fetcher
+from pyvalue.morningstar import financial
 
 fetcher = fundamental_fetcher.FundamentalFetcher()
 share = financial.Financial('EQIX')
