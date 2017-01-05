@@ -7,13 +7,9 @@ from pyvalue.morningstar import financial
 from pyvalue import config
 
 
-class DB:
+class Database:
     DB_NAME = "investment"
-    _db_server = ""
-    _db_port = 0
-    _db_username = ""
-    _db_password = ""
-    _conn = None
+
     # The key is the column name, the value is a tuple of value attribute, currency attribute, and the table name
     FUNDAMENTAL_TABLE_COLUMNS = {
         'REVENUE_MIL': ('revenue_mil', 'revenue_currency', 'morningstar_annual_revenue'),
@@ -40,6 +36,7 @@ class DB:
         self._db_port = int(config.config.get("mysql", "port").strip())
         self._db_username = config.config.get("mysql", "username").strip()
         self._db_password = config.config.get("mysql", "password").strip()
+        self._conn = None
         return
 
     def connect(self):
@@ -68,11 +65,11 @@ class DB:
         stock = fin.stock
 
         has_updated = False
-        for column in DB.FUNDAMENTAL_TABLE_COLUMNS:
+        for column in Database.FUNDAMENTAL_TABLE_COLUMNS:
             if columns is None or column in columns:
-                value_attr_name = DB.FUNDAMENTAL_TABLE_COLUMNS.get(column)[0]
-                currency_attr_name = DB.FUNDAMENTAL_TABLE_COLUMNS.get(column)[1]
-                table_name = DB.FUNDAMENTAL_TABLE_COLUMNS.get(column)[2]
+                value_attr_name = Database.FUNDAMENTAL_TABLE_COLUMNS.get(column)[0]
+                currency_attr_name = Database.FUNDAMENTAL_TABLE_COLUMNS.get(column)[1]
+                table_name = Database.FUNDAMENTAL_TABLE_COLUMNS.get(column)[2]
                 date_values = getattr(fin, value_attr_name)
                 currency = getattr(fin, currency_attr_name) if currency_attr_name is not None else None
                 ret = self.__update_single_column(stock, date_values, currency, version,
@@ -92,10 +89,10 @@ class DB:
         """
         stock = fin.stock
         has_updated = False
-        for column in DB.STOCK_PRICE_TABLE_COLUMNS:
-            value_attr_name = DB.STOCK_PRICE_TABLE_COLUMNS.get(column)[0]
-            currency_attr_name = DB.STOCK_PRICE_TABLE_COLUMNS.get(column)[1]
-            table_name = DB.STOCK_PRICE_TABLE_COLUMNS.get(column)[2]
+        for column in Database.STOCK_PRICE_TABLE_COLUMNS:
+            value_attr_name = Database.STOCK_PRICE_TABLE_COLUMNS.get(column)[0]
+            currency_attr_name = Database.STOCK_PRICE_TABLE_COLUMNS.get(column)[1]
+            table_name = Database.STOCK_PRICE_TABLE_COLUMNS.get(column)[2]
             date_values = getattr(fin, value_attr_name)
             currency = getattr(fin, currency_attr_name) if currency_attr_name is not None else None
             ret = self.__update_single_column(stock, date_values, currency, version,

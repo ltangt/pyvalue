@@ -3,11 +3,13 @@
 # License: BSD
 
 import sys
-import datetime
+
 from pyvalue import constants
-from pyvalue import yahoo_finance_db
-from pyvalue import yahoo_finance_fetcher
-from pyvalue.morningstar import fundamental_fetcher, stock_price_fetcher, financial, db
+from pyvalue.morningstar.fetcher import Fetcher as MorningstarFetcher
+from pyvalue.morningstar.financial import Financial as MorningstarFinancial
+from pyvalue.morningstar.db import Database as MorningstarDB
+from pyvalue.yahoo_finance.db import Database as YahooFinancialDB
+from pyvalue.yahoo_finance.fetcher import Fetcher as YahooFinanceFetcher
 
 
 def daily_job():
@@ -15,41 +17,38 @@ def daily_job():
 
 
 def update_stock_morningstar_fundamental(stock, overwrite=True, use_cache=False):
-    fetcher = fundamental_fetcher.FundamentalFetcher()
-    fin = financial.Financial(stock)
-    success = fetcher.fetch(fin, use_cache=False)
+    fin = MorningstarFinancial(stock)
+    success = MorningstarFetcher.fetch_fundamental(fin, use_cache=False)
     if (fin is None) or (not success):
         print "No result"
         return
     print fin.debug_info()
-    db_conn = db.DB()
+    db_conn = MorningstarDB()
     db_conn.connect()
     db_conn.update_fundamentals(fin, overwrite=overwrite)
     db_conn.close()
 
 
 def update_stock_morningstar_stock_price(stock, start_date, end_date, overwrite=True, use_cache=False):
-    fetcher = stock_price_fetcher.StockPriceFetcher()
-    fin = financial.Financial(stock)
-    success = fetcher.fetch(fin, start_date, end_date, use_cache=False)
+    fin = MorningstarFinancial(stock)
+    success = MorningstarFetcher.fetch_stock_price(fin, start_date, end_date, use_cache=False)
     if (fin is None) or (not success):
         print "No result"
         return
     print fin.debug_info()
-    db_conn = db.DB()
+    db_conn = MorningstarDB()
     db_conn.connect()
     db_conn.update_stock_prices(fin, overwrite=overwrite)
     db_conn.close()
 
 
 def update_sp500_morningstars_fundamental(columns=None, overwrite=True, use_cache=False):
-    fetcher = fundamental_fetcher.FundamentalFetcher()
-    db_conn = db.DB()
+    db_conn = MorningstarDB()
     db_conn.connect()
     num_stock_updated = 0
-    for stock in constants.sp500_2015_10:
-        fin = financial.Financial(stock)
-        success = fetcher.fetch(fin, use_cache=use_cache)
+    for stock in constants.SP500_2015_10:
+        fin = MorningstarFinancial(stock)
+        success = MorningstarFetcher.fetch_fundamental(fin, use_cache=use_cache)
         if (fin is None) or (not success):
             sys.stdout.write("no result for " + stock + ", ")
         else:
@@ -64,13 +63,12 @@ def update_sp500_morningstars_fundamental(columns=None, overwrite=True, use_cach
 
 
 def update_sp500_morningstars_stock_price(start_date, end_date, overwrite=True, use_cache=False):
-    fetcher = stock_price_fetcher.StockPriceFetcher()
-    db_conn = db.DB()
+    db_conn = MorningstarDB()
     db_conn.connect()
     num_stock_updated = 0
-    for stock in constants.sp500_2015_10:
-        fin = financial.Financial(stock)
-        success = fetcher.fetch(fin, start_date, end_date, use_cache=use_cache)
+    for stock in constants.SP500_2015_10:
+        fin = MorningstarFinancial(stock)
+        success = MorningstarFetcher.fetch_stock_price(fin, start_date, end_date, use_cache=use_cache)
         if (fin is None) or (not success):
             sys.stdout.write("no result for " + stock + ", ")
         else:
@@ -85,18 +83,18 @@ def update_sp500_morningstars_stock_price(start_date, end_date, overwrite=True, 
 
 
 def update_sp500_yahoofinance():
-    fetcher = yahoo_finance_fetcher.YahooFinanceFetcher()
-    db = yahoo_finance_db.YahooFinanceDB()
-    db.connect()
+    fetcher = YahooFinanceFetcher()
+    db_conn = YahooFinancialDB()
+    db_conn.connect()
     num_stock_updated = 0
-    for stock in constants.sp500_2015_10:
-        financial = fetcher.fetch(stock)
-        if financial is None:
+    for stock in constants.SP500_2015_10:
+        fin = fetcher.fetch(stock)
+        if fin is None:
             sys.stdout.write("no result for " + stock)
         else:
-            db.update(financial)
+            db_conn.update(fin)
             sys.stdout.write("updated " + stock)
         sys.stdout.write(" , "+str(num_stock_updated+1) + " stocks processed. \n")
         num_stock_updated += 1
-    db.close()
+    db_conn.close()
 

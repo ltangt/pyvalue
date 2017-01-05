@@ -7,7 +7,7 @@ class StockIntrinsicValueTest(unittest.TestCase):
 
     @staticmethod
     def test_debt_to_assert_scorer():
-        db_conn = db.DB()
+        db_conn = db.Database()
         db_conn.connect()
         apple = db_conn.retrieve('AAPL')
         apple_iv = stock_intrinsic_value.StockIntrinsicValue.intrinsic_value(apple)

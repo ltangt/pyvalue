@@ -3,7 +3,7 @@
 # License: BSD
 
 
-class YahooFinanceFinancial(object):
+class Financial(object):
     _stock = ""
     _trade_datetime = None
     _price = None

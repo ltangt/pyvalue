@@ -5,15 +5,10 @@ import pymysql
 import datetime
 
 
-class YahooFinanceDB:
+class Database:
     DB_ACCOUNT_FILE = "mysql_account.txt"
     DB_NAME = "investment"
     DB_TABLE = "yahoo_finance"
-    _db_server = ""
-    _db_port = 0
-    _db_username = ""
-    _db_password = ""
-    _conn = None
 
     def __init__(self):
         tmp_file = open(self.DB_ACCOUNT_FILE, "r")
@@ -23,6 +18,7 @@ class YahooFinanceDB:
         self._db_port = int(self._db_port.strip())
         self._db_username = self._db_username.strip()
         self._db_password = self._db_password.strip()
+        self._conn = None
         tmp_file.close()
         return
 
@@ -95,7 +91,7 @@ class YahooFinanceDB:
                        financial.price_book,
                        financial.price_sales,
                        )
-        value_tuple = YahooFinanceDB._process_tuple_value(value_tuple)
+        value_tuple = Database._process_tuple_value(value_tuple)
         if cur_datetime in existing_dates:
             value_tuple += (stock, cur_datetime, version)
             cur.execute(sql_update % value_tuple)

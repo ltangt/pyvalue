@@ -5,34 +5,30 @@ import datetime
 
 
 class Financial(object):
-    __stock = ""
-    """
-    All the properties (except for the currency) are the dictionary data structure,
-    where the key is the date in form of "YYYY-mm-dd" and the value is actual value.
-    """
-    __revenue_mil = {}  # the key is the date and the value is the revenue in millions
-    __revenue_currency = None  # the currency of the revenue, e.g., USD
-    __net_income_mil = {}  # the key is the date and the value is the net income in millions
-    __net_income_currency = None  # the currency of the net income, e.g., USD
-    __book_value_per_share = {}  # the key is the date and the value is the book value per share
-    __book_value_currency = None  # the currency of the book value, e.g., USD
-    __share_mil = {}  # the total number of shares
-    __operating_income_mil = {}  # the operating income in usd millions
-    __operating_income_currency = None  # the currency of the operating income, e.g., USD
-    __gross_margin = {}  # the gross margin, the difference between revenue and cost of goods sold divided by revenue
-    __dividends = {}  # the dividend in usd per share
-    __dividend_currency = None  # the currency of the dividend, e.g., USD
-    __debt_to_equity = {}  # the debt/equity
-    __current_ratio = {}  # the current ratio
-    __stock_daily_close_price = {}  # the historical close price for each day
-    __stock_daily_open_price = {}  # the historical open price for each day
-    __stock_daily_highest_price = {}  # the historical highest price for each day
-    __stock_daily_lowest_price = {}  # the historical lowest price for each day
-    __stock_daily_price_currency = None  # the currency of the stock price for each day
-
-    def __init__(self, stock, revenue={}):
+    def __init__(self, stock):
         self.__stock = stock
-        self.__revenue_mil = revenue
+        # All the properties (except for the currency) are the dictionary data structure,
+        # where the key is the date in form of "YYYY-mm-dd" and the value is actual value.
+        self.__revenue_mil = {}  # the key is the date and the value is the revenue in millions
+        self.__revenue_currency = None  # the currency of the revenue, e.g., USD
+        self.__net_income_mil = {}  # the key is the date and the value is the net income in millions
+        self.__net_income_currency = None  # the currency of the net income, e.g., USD
+        self.__book_value_per_share = {}  # the key is the date and the value is the book value per share
+        self.__book_value_currency = None  # the currency of the book value, e.g., USD
+        self.__share_mil = {}  # the total number of shares
+        self.__operating_income_mil = {}  # the operating income in usd millions
+        self.__operating_income_currency = None  # the currency of the operating income, e.g., USD
+        self.__gross_margin = {}  # the gross margin, the difference between revenue and cost of goods sold divided
+        # by revenue
+        self.__dividends = {}  # the dividend in usd per share
+        self.__dividend_currency = None  # the currency of the dividend, e.g., USD
+        self.__debt_to_equity = {}  # the debt/equity
+        self.__current_ratio = {}  # the current ratio
+        self.__stock_daily_close_price = {}  # the historical close price for each day
+        self.__stock_daily_open_price = {}  # the historical open price for each day
+        self.__stock_daily_highest_price = {}  # the historical highest price for each day
+        self.__stock_daily_lowest_price = {}  # the historical lowest price for each day
+        self.__stock_daily_price_currency = None  # the currency of the stock price for each day
         return
 
     @property

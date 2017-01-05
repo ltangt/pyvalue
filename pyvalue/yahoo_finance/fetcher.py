@@ -3,7 +3,7 @@
 # License: BSD
 import datetime
 from yahoo_finance import Share
-from yahoo_finance_financials import YahooFinanceFinancial
+from pyvalue.yahoo_finance.financials import Financial
 from dateutil.parser import parse
 
 
@@ -11,10 +11,9 @@ class YahooFinanceFetcherException(Exception):
     pass
 
 
-class YahooFinanceFetcher:
-    _num_retries = 3
-
+class Fetcher:
     def __init__(self):
+        self._num_retries = 3
         return
 
     def fetch(self, stock, num_retries=3):
@@ -23,7 +22,7 @@ class YahooFinanceFetcher:
         return self._fetch(stock, share)
 
     def _fetch(self, stock, share):
-        f = YahooFinanceFinancial(stock)
+        f = Financial(stock)
         f.trade_datetime = parse(share.get_trade_datetime())
         f.price = self._float_val(share, "get_price")
         f.days_high = self._float_val(share, "get_days_high")

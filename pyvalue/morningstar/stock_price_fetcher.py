@@ -15,7 +15,7 @@ class StockPriceFetcher:
     PRICE_DATA_LIST = "PriceDataList"
     DATA_POINTS = "Datapoints"
     DATE_INDEXS = "DateIndexs"
-    __start_date = datetime.datetime.strptime("1900-01-01", "%Y-%m-%d")
+    START_DATE = datetime.datetime.strptime("1900-01-01", "%Y-%m-%d")
 
     def __init__(self):
         return
@@ -138,7 +138,7 @@ class StockPriceFetcher:
         :type date_index: int
         :return: the date string in the format of "YYYY-MM-dd"
         """
-        date_time = StockPriceFetcher.__start_date + datetime.timedelta(days=date_index)
+        date_time = StockPriceFetcher.START_DATE + datetime.timedelta(days=date_index)
         return date_time.strftime("%Y-%m-%d")
 
 
