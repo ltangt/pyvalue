@@ -50,7 +50,7 @@ class FundamentalFetcher:
         for try_idx in range(num_retries):
             try:
                 filename = "/tmp/" + stock + ".csv"
-                if use_cache and FundamentalFetcher.__has_cache(filename):
+                if use_cache and FundamentalFetcher._has_cache(filename):
                     tmp_file = open(filename, "r")
                     html = tmp_file.read()
                     tmp_file.close()
@@ -62,7 +62,7 @@ class FundamentalFetcher:
                     tmp_file = open(filename, "w")
                     tmp_file.write(html)
                     tmp_file.close()
-                self.__parse_html(html, fin)
+                self._parse_html(html, fin)
                 return True
             except (fetcher_exception.FetcherException, urllib2.HTTPError) as err:
                 print stock + " : " + err.message + " in the "+str((try_idx+1))+" time"
@@ -71,7 +71,7 @@ class FundamentalFetcher:
                     return False
 
     @staticmethod
-    def __has_cache(filename):
+    def _has_cache(filename):
         if not os.path.isfile(filename):
             return False
         tmp_file = open(filename, "r")
@@ -79,91 +79,91 @@ class FundamentalFetcher:
         tmp_file.close()
         return len(content) > 0
 
-    def __parse_html(self, html, fin):
+    def _parse_html(self, html, fin):
         lines = html.split("\n")
-        self.__parse_financial(lines, fin)
-        self.__parse_liquidity(lines, fin)
+        self._parse_financial(lines, fin)
+        self._parse_liquidity(lines, fin)
 
     # Parse the financial section from the csv
-    def __parse_financial(self, lines, fin):
-        line_idx = self.__find_line_index(lines, self.FINANCIAL_SECTION_HEADER)
+    def _parse_financial(self, lines, fin):
+        line_idx = self._find_line_index(lines, self.FINANCIAL_SECTION_HEADER)
         if line_idx == -1:
             raise fetcher_exception.FetcherException("The html contains no " + self.FINANCIAL_SECTION_HEADER)
         # Get the section of lines
-        sec_lines = FundamentalFetcher.__get_section_lines(lines, line_idx)
+        sec_lines = FundamentalFetcher._get_section_lines(lines, line_idx)
         line_dates = lines[line_idx+1]
         # Get the dates
-        dates = FundamentalFetcher.__get_dates(line_dates)
+        dates = FundamentalFetcher._get_dates(line_dates)
 
         # Get the financial values
         fin.revenue_mil, financial.revenue_currency = \
-            FundamentalFetcher.__parse_financial_with_dates(sec_lines, dates, self.REVENUE_LINE_PREFIX,
-                                                            required_unit="mil")
+            FundamentalFetcher._parse_financial_with_dates(sec_lines, dates, self.REVENUE_LINE_PREFIX,
+                                                           required_unit="mil")
 
         fin.net_income_mil, financial.net_income_currency = \
-            FundamentalFetcher.__parse_financial_with_dates(sec_lines, dates, self.NET_INCOME_LINE_PREFIX,
-                                                            required_unit="mil")
+            FundamentalFetcher._parse_financial_with_dates(sec_lines, dates, self.NET_INCOME_LINE_PREFIX,
+                                                           required_unit="mil")
 
         fin.book_value_per_share, financial.book_value_currency = \
-            FundamentalFetcher.__parse_financial_with_dates(sec_lines, dates, self.BOOK_VALUE_PER_SHARE_PREFIX,
-                                                            has_currency=True, has_unit=False)
+            FundamentalFetcher._parse_financial_with_dates(sec_lines, dates, self.BOOK_VALUE_PER_SHARE_PREFIX,
+                                                           has_currency=True, has_unit=False)
 
         fin.share_mil = \
-            FundamentalFetcher.__parse_financial_with_dates(sec_lines, dates, self.SHARE_MIL_PREFIX,
-                                                            has_currency=False, has_unit=False)
+            FundamentalFetcher._parse_financial_with_dates(sec_lines, dates, self.SHARE_MIL_PREFIX,
+                                                           has_currency=False, has_unit=False)
 
         fin.operating_income_mil, financial.operating_income_currency = \
-            FundamentalFetcher.__parse_financial_with_dates(sec_lines, dates, self.OPERATING_INCOME_PREFIX,
-                                                            required_unit="mil")
+            FundamentalFetcher._parse_financial_with_dates(sec_lines, dates, self.OPERATING_INCOME_PREFIX,
+                                                           required_unit="mil")
 
         gross_margin = \
-            FundamentalFetcher.__parse_financial_with_dates(sec_lines, dates, self.GROSS_MARGIN,
-                                                            has_currency=False, has_unit=False)
+            FundamentalFetcher._parse_financial_with_dates(sec_lines, dates, self.GROSS_MARGIN,
+                                                           has_currency=False, has_unit=False)
         # change the percentage number into real numbers
         fin.gross_margin = dict((date, value/100.0) for date, value in gross_margin.items())
 
         fin.dividends, fin.dividend_currency = \
-            FundamentalFetcher.__parse_financial_with_dates(sec_lines, dates, self.DIVIDENDS,
-                                                            has_currency=True, has_unit=False)
+            FundamentalFetcher._parse_financial_with_dates(sec_lines, dates, self.DIVIDENDS,
+                                                           has_currency=True, has_unit=False)
 
     # Parse the financial health section from the csv
-    def __parse_liquidity(self, lines, fin):
-        line_idx = self.__find_line_index(lines, self.LIQUIDITY_SECTION_HEADER)
+    def _parse_liquidity(self, lines, fin):
+        line_idx = self._find_line_index(lines, self.LIQUIDITY_SECTION_HEADER)
         if line_idx == -1:
             raise fetcher_exception.FetcherException("The html contains no " + self.FINANCIAL_HEALTH_SECTION_HEADER)
         # Get the section of lines
-        sec_lines = FundamentalFetcher.__get_section_lines(lines, line_idx)
+        sec_lines = FundamentalFetcher._get_section_lines(lines, line_idx)
         line_dates = lines[line_idx]
         # Get the dates
-        dates = FundamentalFetcher.__get_dates(line_dates)
+        dates = FundamentalFetcher._get_dates(line_dates)
         # Get the financial values
         fin.current_ratio = \
-            FundamentalFetcher.__parse_financial_with_dates(sec_lines, dates, self.CURRENT_RATIO_PREFIX,
-                                                            has_currency=False, has_unit=False)
+            FundamentalFetcher._parse_financial_with_dates(sec_lines, dates, self.CURRENT_RATIO_PREFIX,
+                                                           has_currency=False, has_unit=False)
 
         fin.debt_to_equity = \
-            FundamentalFetcher.__parse_financial_with_dates(sec_lines, dates, self.DEBT_EQUITY_PREFIX,
-                                                            has_currency=False, has_unit=False)
+            FundamentalFetcher._parse_financial_with_dates(sec_lines, dates, self.DEBT_EQUITY_PREFIX,
+                                                           has_currency=False, has_unit=False)
 
     @staticmethod
-    def __parse_financial_with_dates(lines, dates, line_prefix,
-                                     has_currency=True, has_unit=True, required_unit="mil"):
+    def _parse_financial_with_dates(lines, dates, line_prefix,
+                                    has_currency=True, has_unit=True, required_unit="mil"):
         values = {}
-        line_idx = FundamentalFetcher.__find_line_startwith(lines, line_prefix)
+        line_idx = FundamentalFetcher._find_line_startwith(lines, line_prefix)
         # Get the currency and unit
         if line_idx == -1:
             raise fetcher_exception.FetcherException("Cannot find line starting with" + line_prefix)
         line = lines[line_idx]
         line_postfix = line[len(line_prefix):] # the line by cutting the prefix part
-        currency, unit = FundamentalFetcher.__get_currency_and_unit(line_postfix, has_currency, has_unit)
-        tokens = FundamentalFetcher.__parse_csv_line(line)
+        currency, unit = FundamentalFetcher._get_currency_and_unit(line_postfix, has_currency, has_unit)
+        tokens = FundamentalFetcher._parse_csv_line(line)
         for i in range(1, len(tokens)):
             token = tokens[i].replace(',', '').strip()
             if len(token) == 0:
                 continue
             value = float(token)
             if has_unit:
-                value = FundamentalFetcher.__unit_convert(unit, value, required_unit)
+                value = FundamentalFetcher._unit_convert(unit, value, required_unit)
             date = dates[i - 1]
             values[date] = value
         if not has_currency:
@@ -172,7 +172,7 @@ class FundamentalFetcher:
             return values, currency
 
     @staticmethod
-    def __get_currency_and_unit(line, has_currency=True, has_unit=True):
+    def _get_currency_and_unit(line, has_currency=True, has_unit=True):
         if (not has_currency) and (not has_unit):
             return FundamentalFetcher.NO_CURRENCY, FundamentalFetcher.NO_UNIT
         line = line.replace("*", " ")
@@ -195,7 +195,7 @@ class FundamentalFetcher:
             return tokens[-2], tokens[-1]
 
     @staticmethod
-    def __find_line_index(lines, head):
+    def _find_line_index(lines, head):
         index = 0
         head = head.lower()
         for line in lines:
@@ -206,7 +206,7 @@ class FundamentalFetcher:
         return -1
 
     @staticmethod
-    def __find_line_startwith(lines, start_with):
+    def _find_line_startwith(lines, start_with):
         index = 0
         for line in lines:
             if line.startswith(start_with):
@@ -215,7 +215,7 @@ class FundamentalFetcher:
         return -1
 
     @staticmethod
-    def __get_dates(line):
+    def _get_dates(line):
         tokens = line.split(",")
         # Skip the first token, which is empty
         dates = []
@@ -224,7 +224,7 @@ class FundamentalFetcher:
         return dates
 
     @staticmethod
-    def __parse_csv_line(line):
+    def _parse_csv_line(line):
         f = StringIO.StringIO(line)
         reader = csv.reader(f, delimiter=',', quotechar='"')
         for row in reader:
@@ -232,7 +232,7 @@ class FundamentalFetcher:
         return None
 
     @staticmethod
-    def __get_section_lines(lines, start_idx):
+    def _get_section_lines(lines, start_idx):
         section_lines = []
         idx = start_idx
         while idx < len(lines):
@@ -243,7 +243,7 @@ class FundamentalFetcher:
         return section_lines
 
     @staticmethod
-    def __unit_convert(src_unit, src_value, dest_unit):
+    def _unit_convert(src_unit, src_value, dest_unit):
         if src_unit == dest_unit:
             return src_value
         if src_unit == "" and dest_unit == "mil":

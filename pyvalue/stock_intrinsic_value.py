@@ -14,27 +14,27 @@ class StockIntrinsicValue:
         return
 
     @staticmethod
-    def intrinsic_value(financial, ys=10, risk_free_rate=constants.US_10Y_NOTE_YIELD):
+    def intrinsic_value(fin, ys=10, risk_free_rate=constants.US_10Y_NOTE_YIELD):
         """
         Compute the intrinsic value of a stock share
-        :param financial: the morningstar financial object of the stock
-        :type financial: financial.Financial
+        :param fin: the morningstar financial object of the stock
+        :type fin: financial.Financial
         :param ys: the number of years for estimation
         :type ys: int
         :param risk_free_rate: the rate of US 10 years note (risk free 'ys' years return)
         :type risk_free_rate: float
         :return: the intrinsic value of a stock share
         """
-        dividend = StockIntrinsicValue.__predict_annual_dividend(financial)
+        dividend = StockIntrinsicValue._predict_annual_dividend(fin)
         iv = 0
         risk_free_ratio = (1 + risk_free_rate) ** ys
         iv += dividend * (1.0 - 1.0/risk_free_ratio) / risk_free_rate
-        future_book_value = StockIntrinsicValue.__predict_book_value(financial, 10)
+        future_book_value = StockIntrinsicValue._predict_book_value(fin, 10)
         iv += future_book_value/risk_free_ratio
         return iv
 
     @staticmethod
-    def __predict_book_value(fin, num_yrs):
+    def _predict_book_value(fin, num_yrs):
         """
         Compute the predicted book value after a number of years
         :param financial: the morningstar financial object of the stock
@@ -68,16 +68,16 @@ class StockIntrinsicValue:
         # return last_yr_val + (last_yr_val - this_yr_val)*num_yrs
 
     @staticmethod
-    def __predict_annual_dividend(financial):
+    def _predict_annual_dividend(fin):
         """
         Compute the predicted dividend (in dollar) per year in the next 10 years
-        :param financial: the morningstar financial object of the stock
-        :type financial: financial.Financial
+        :param fin: the morningstar financial object of the stock
+        :type fin: financial.Financial
         :return:
         """
-        if 'TTM' not in financial.dividends:
+        if 'TTM' not in fin.dividends:
             return 0
         else:
-            return financial.dividends['TTM']
+            return fin.dividends['TTM']
 
 

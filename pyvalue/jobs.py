@@ -8,8 +8,9 @@ from pyvalue import constants
 from pyvalue.morningstar.fetcher import Fetcher as MorningstarFetcher
 from pyvalue.morningstar.financial import Financial as MorningstarFinancial
 from pyvalue.morningstar.db import Database as MorningstarDB
-from pyvalue.yahoo_finance.db import Database as YahooFinancialDB
-from pyvalue.yahoo_finance.fetcher import Fetcher as YahooFinanceFetcher
+from pyvalue.yahoofinance.db import Database as YahooFinancialDB
+from pyvalue.yahoofinance.financial import Financial as YahooFinanceFinancial
+from pyvalue.yahoofinance.fetcher import Fetcher as YahooFinanceFetcher
 
 
 def daily_job():
@@ -31,7 +32,7 @@ def update_stock_morningstar_fundamental(stock, overwrite=True, use_cache=False)
 
 def update_stock_morningstar_stock_price(stock, start_date, end_date, overwrite=True, use_cache=False):
     fin = MorningstarFinancial(stock)
-    success = MorningstarFetcher.fetch_stock_price(fin, start_date, end_date, use_cache=False)
+    success = MorningstarFetcher.fetch_stock_historical_price(fin, start_date, end_date, use_cache=False)
     if (fin is None) or (not success):
         print "No result"
         return
@@ -68,7 +69,7 @@ def update_sp500_morningstars_stock_price(start_date, end_date, overwrite=True, 
     num_stock_updated = 0
     for stock in constants.SP500_2015_10:
         fin = MorningstarFinancial(stock)
-        success = MorningstarFetcher.fetch_stock_price(fin, start_date, end_date, use_cache=use_cache)
+        success = MorningstarFetcher.fetch_stock_historical_price(fin, start_date, end_date, use_cache=use_cache)
         if (fin is None) or (not success):
             sys.stdout.write("no result for " + stock + ", ")
         else:
@@ -82,17 +83,36 @@ def update_sp500_morningstars_stock_price(start_date, end_date, overwrite=True, 
     db_conn.close()
 
 
-def update_sp500_yahoofinance():
+def update_sp500_yahoofinance_stock_quote():
     fetcher = YahooFinanceFetcher()
     db_conn = YahooFinancialDB()
     db_conn.connect()
     num_stock_updated = 0
     for stock in constants.SP500_2015_10:
-        fin = fetcher.fetch(stock)
-        if fin is None:
+        fin = YahooFinanceFinancial(stock)
+        success = fetcher.fetch_quote(fin)
+        if not success:
             sys.stdout.write("no result for " + stock)
         else:
-            db_conn.update(fin)
+            db_conn.update_quote(fin)
+            sys.stdout.write("updated " + stock)
+        sys.stdout.write(" , "+str(num_stock_updated+1) + " stocks processed. \n")
+        num_stock_updated += 1
+    db_conn.close()
+
+
+def update_sp500_yahoofinance_stock_historical(start_date, end_date):
+    fetcher = YahooFinanceFetcher()
+    db_conn = YahooFinancialDB()
+    db_conn.connect()
+    num_stock_updated = 0
+    for stock in constants.SP500_2015_10:
+        fin = YahooFinanceFinancial(stock)
+        success = fetcher.fetch_historical(fin, start_date, end_date)
+        if not success:
+            sys.stdout.write("no result for " + stock)
+        else:
+            db_conn.update_historical(fin)
             sys.stdout.write("updated " + stock)
         sys.stdout.write(" , "+str(num_stock_updated+1) + " stocks processed. \n")
         num_stock_updated += 1

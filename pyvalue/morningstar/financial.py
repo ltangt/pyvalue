@@ -6,193 +6,193 @@ import datetime
 
 class Financial(object):
     def __init__(self, stock):
-        self.__stock = stock
+        self._stock = stock
         # All the properties (except for the currency) are the dictionary data structure,
         # where the key is the date in form of "YYYY-mm-dd" and the value is actual value.
-        self.__revenue_mil = {}  # the key is the date and the value is the revenue in millions
-        self.__revenue_currency = None  # the currency of the revenue, e.g., USD
-        self.__net_income_mil = {}  # the key is the date and the value is the net income in millions
-        self.__net_income_currency = None  # the currency of the net income, e.g., USD
-        self.__book_value_per_share = {}  # the key is the date and the value is the book value per share
-        self.__book_value_currency = None  # the currency of the book value, e.g., USD
-        self.__share_mil = {}  # the total number of shares
-        self.__operating_income_mil = {}  # the operating income in usd millions
-        self.__operating_income_currency = None  # the currency of the operating income, e.g., USD
-        self.__gross_margin = {}  # the gross margin, the difference between revenue and cost of goods sold divided
+        self._revenue_mil = {}  # the key is the date and the value is the revenue in millions
+        self._revenue_currency = None  # the currency of the revenue, e.g., USD
+        self._net_income_mil = {}  # the key is the date and the value is the net income in millions
+        self._net_income_currency = None  # the currency of the net income, e.g., USD
+        self._book_value_per_share = {}  # the key is the date and the value is the book value per share
+        self._book_value_currency = None  # the currency of the book value, e.g., USD
+        self._share_mil = {}  # the total number of shares
+        self._operating_income_mil = {}  # the operating income in usd millions
+        self._operating_income_currency = None  # the currency of the operating income, e.g., USD
+        self._gross_margin = {}  # the gross margin, the difference between revenue and cost of goods sold divided
         # by revenue
-        self.__dividends = {}  # the dividend in usd per share
-        self.__dividend_currency = None  # the currency of the dividend, e.g., USD
-        self.__debt_to_equity = {}  # the debt/equity
-        self.__current_ratio = {}  # the current ratio
-        self.__stock_daily_close_price = {}  # the historical close price for each day
-        self.__stock_daily_open_price = {}  # the historical open price for each day
-        self.__stock_daily_highest_price = {}  # the historical highest price for each day
-        self.__stock_daily_lowest_price = {}  # the historical lowest price for each day
-        self.__stock_daily_price_currency = None  # the currency of the stock price for each day
+        self._dividends = {}  # the dividend in usd per share
+        self._dividend_currency = None  # the currency of the dividend, e.g., USD
+        self._debt_to_equity = {}  # the debt/equity
+        self._current_ratio = {}  # the current ratio
+        self._stock_daily_close_price = {}  # the historical close price for each day
+        self._stock_daily_open_price = {}  # the historical open price for each day
+        self._stock_daily_highest_price = {}  # the historical highest price for each day
+        self._stock_daily_lowest_price = {}  # the historical lowest price for each day
+        self._stock_daily_price_currency = None  # the currency of the stock price for each day
         return
 
     @property
     def stock(self):
-        return self.__stock
+        return self._stock
 
     @property
     def revenue_mil(self):
-        return self.__revenue_mil
+        return self._revenue_mil
 
     @revenue_mil.setter
     def revenue_mil(self, revenue):
-        self.__revenue_mil = revenue
+        self._revenue_mil = revenue
 
     @property
     def revenue_currency(self):
-        return self.__revenue_currency
+        return self._revenue_currency
 
     @revenue_currency.setter
     def revenue_currency(self, value):
-        self.__revenue_currency = value
+        self._revenue_currency = value
 
     @property
     def net_income_mil(self):
-        return self.__net_income_mil
+        return self._net_income_mil
 
     @net_income_mil.setter
     def net_income_mil(self, net_income):
-        self.__net_income_mil = net_income
+        self._net_income_mil = net_income
 
     @property
     def net_income_currency(self):
-        return self.__net_income_currency
+        return self._net_income_currency
 
     @net_income_currency.setter
     def net_income_currency(self, value):
-        self.__net_income_currency = value
+        self._net_income_currency = value
 
     @property
     def book_value_per_share(self):
-        return self.__book_value_per_share
+        return self._book_value_per_share
 
     @book_value_per_share.setter
     def book_value_per_share(self, book_value_per_share):
-        self.__book_value_per_share = book_value_per_share
+        self._book_value_per_share = book_value_per_share
 
     @property
     def book_value_currency(self):
-        return self.__book_value_currency
+        return self._book_value_currency
 
     @book_value_currency.setter
     def book_value_currency(self, value):
-        self.__book_value_currency = value
+        self._book_value_currency = value
 
     @property
     def share_mil(self):
-        return self.__share_mil
+        return self._share_mil
 
     @share_mil.setter
     def share_mil(self, share_mil):
-        self.__share_mil = share_mil
+        self._share_mil = share_mil
 
     @property
     def operating_income_mil(self):
-        return self.__operating_income_mil
+        return self._operating_income_mil
 
     @operating_income_mil.setter
     def operating_income_mil(self, operating_income):
-        self.__operating_income_mil = operating_income
+        self._operating_income_mil = operating_income
 
     @property
     def operating_income_currency(self):
-        return self.__operating_income_currency
+        return self._operating_income_currency
 
     @operating_income_currency.setter
     def operating_income_currency(self, value):
-        self.__operating_income_currency = value
+        self._operating_income_currency = value
 
     @property
     def gross_margin(self):
-        return self.__gross_margin
+        return self._gross_margin
 
     @gross_margin.setter
     def gross_margin(self, gross_margin):
-        self.__gross_margin = gross_margin
+        self._gross_margin = gross_margin
 
     @property
     def dividends(self):
-        return self.__dividends
+        return self._dividends
 
     @dividends.setter
     def dividends(self, dividends):
-        self.__dividends = dividends
+        self._dividends = dividends
 
     @property
     def dividend_currency(self):
-        return self.__dividend_currency
+        return self._dividend_currency
 
     @dividend_currency.setter
     def dividend_currency(self, value):
-        self.__dividend_currency = value
+        self._dividend_currency = value
 
     @property
     def debt_to_equity(self):
-        return self.__debt_to_equity
+        return self._debt_to_equity
 
     @debt_to_equity.setter
     def debt_to_equity(self, debt_to_equity):
-        self.__debt_to_equity = debt_to_equity
+        self._debt_to_equity = debt_to_equity
 
     @property
     def current_ratio(self):
-        return self.__current_ratio
+        return self._current_ratio
 
     @current_ratio.setter
     def current_ratio(self, current_ratio):
-        self.__current_ratio = current_ratio
+        self._current_ratio = current_ratio
 
     @property
     def stock_daily_open_price(self):
-        return self.__stock_daily_open_price
+        return self._stock_daily_open_price
 
     @stock_daily_open_price.setter
     def stock_daily_open_price(self, value):
-        self.__stock_daily_open_price = value
+        self._stock_daily_open_price = value
 
     @property
     def stock_daily_close_price(self):
-        return self.__stock_daily_close_price
+        return self._stock_daily_close_price
 
     @stock_daily_close_price.setter
     def stock_daily_close_price(self, value):
-        self.__stock_daily_close_price = value
+        self._stock_daily_close_price = value
 
     @property
     def stock_daily_highest_price(self):
-        return self.__stock_daily_highest_price
+        return self._stock_daily_highest_price
 
     @stock_daily_highest_price.setter
     def stock_daily_highest_price(self, value):
-        self.__stock_daily_highest_price = value
+        self._stock_daily_highest_price = value
 
     @property
     def stock_daily_lowest_price(self):
-        return self.__stock_daily_lowest_price
+        return self._stock_daily_lowest_price
 
     @stock_daily_lowest_price.setter
     def stock_daily_lowest_price(self, value):
-        self.__stock_daily_lowest_price = value
+        self._stock_daily_lowest_price = value
 
     @property
     def stock_daily_price_currency(self):
-        return self.__stock_daily_price_currency
+        return self._stock_daily_price_currency
 
     @stock_daily_price_currency.setter
     def stock_daily_price_currency(self, value):
-        self.__stock_daily_price_currency = value
+        self._stock_daily_price_currency = value
 
     def debug_info(self):
-        info = self.__stock
+        info = self._stock
         info += " : revenue =>"
-        info += str(self.__revenue_mil)
+        info += str(self._revenue_mil)
         info += "\n net_income => "
-        info += str(self.__net_income_mil)
+        info += str(self._net_income_mil)
         info += "\n book_value => "
         info += str(self.book_value_per_share)
         info += "\n share_mil => "

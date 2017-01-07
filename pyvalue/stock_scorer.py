@@ -14,11 +14,11 @@ class StockScorer:
         pass
 
     @abstractmethod
-    def score(self, financial):
+    def score(self, f):
         """
         Compute the score for a stock
-        :param financial: the morningstar financial object of the stock
-        :type financial: financial.Financial
+        :param f: the morningstar financial object of the stock
+        :type f: financial.Financial
         :return: the score
         """
         raise NotImplementedError()
@@ -50,9 +50,6 @@ def date_values_after(date_values, start_date):
 
 
 class DebtToAssertScorer(StockScorer):
-    __threshold = 0.5
-    __start_datetime = None
-
     def __init__(self, threshold=0.5, start_datetime=None):
         """
 
@@ -61,30 +58,27 @@ class DebtToAssertScorer(StockScorer):
         :param start_datetime:
         :type start_datetime: datetime.datetime
         """
-        self.__threshold = threshold
+        self._threshold = threshold
         if start_datetime is None:
             # Use the last year
-            self.__start_datetime = get_last_year_date()
+            self._start_datetime = get_last_year_date()
         else:
-            self.__start_datetime = start_datetime
+            self._start_datetime = start_datetime
 
-    def score(self, financial):
+    def score(self, f):
         """
         Compute the score for a stock
-        :param financial: the morningstar financial object of the stock
-        :type financial: financial.Financial
+        :param f: the morningstar financial object of the stock
+        :type f: financial.Financial
         :return: the score
         """
-        valid_entries = date_values_after(financial.debt_to_equity, self.__start_datetime)
+        valid_entries = date_values_after(f.debt_to_equity, self._start_datetime)
         avg_debt_to_equity = sum([valid_entries.get(date_str) for date_str in valid_entries]) / len(valid_entries)
-        score = 1.0 if avg_debt_to_equity <= self.__threshold else 0.0
+        score = 1.0 if avg_debt_to_equity <= self._threshold else 0.0
         return score
 
 
 class CurrentRatioScorer(StockScorer):
-    __threshold = 1.5
-    __start_datetime = None
-
     def __init__(self, threshold=1.5, start_datetime=None):
         """
 
@@ -93,21 +87,21 @@ class CurrentRatioScorer(StockScorer):
         :param start_datetime:
         :type start_datetime: datetime.datetime
         """
-        self.__threshold = threshold
+        self._threshold = threshold
         if start_datetime is None:
             # Use the last year
-            self.__start_datetime = get_last_year_date()
+            self._start_datetime = get_last_year_date()
         else:
-            self.__start_datetime = start_datetime
+            self._start_datetime = start_datetime
 
-    def score(self, financial):
+    def score(self, f):
         """
         Compute the score for a stock
-        :param financial: the morningstar financial object of the stock
-        :type financial: financial.Financial
+        :param f: the morningstar financial object of the stock
+        :type f: financial.Financial
         :return: the score
         """
-        valid_entries = date_values_after(financial.current_ratio, self.__start_datetime)
+        valid_entries = date_values_after(f.current_ratio, self._start_datetime)
         avg_ratio = sum([valid_entries.get(date_str) for date_str in valid_entries]) / len(valid_entries)
-        score = 1.0 if avg_ratio >= self.__threshold else 0.0
+        score = 1.0 if avg_ratio >= self._threshold else 0.0
         return score

@@ -37,7 +37,6 @@ class Database:
         self._db_username = config.config.get("mysql", "username").strip()
         self._db_password = config.config.get("mysql", "password").strip()
         self._conn = None
-        return
 
     def connect(self):
         if self._conn is not None:
@@ -72,8 +71,8 @@ class Database:
                 table_name = Database.FUNDAMENTAL_TABLE_COLUMNS.get(column)[2]
                 date_values = getattr(fin, value_attr_name)
                 currency = getattr(fin, currency_attr_name) if currency_attr_name is not None else None
-                ret = self.__update_single_column(stock, date_values, currency, version,
-                                                  table_name, column, overwrite)
+                ret = self._update_single_column(stock, date_values, currency, version,
+                                                 table_name, column, overwrite)
                 has_updated |= ret
         self._conn.commit()
         return has_updated
@@ -95,15 +94,15 @@ class Database:
             table_name = Database.STOCK_PRICE_TABLE_COLUMNS.get(column)[2]
             date_values = getattr(fin, value_attr_name)
             currency = getattr(fin, currency_attr_name) if currency_attr_name is not None else None
-            ret = self.__update_single_column(stock, date_values, currency, version,
-                                              table_name, column, overwrite)
+            ret = self._update_single_column(stock, date_values, currency, version,
+                                             table_name, column, overwrite)
             has_updated |= ret
         self._conn.commit()
         return has_updated
 
     # Update the single column value, such as revenue, net_income and other financial values with dates in the database
     # Return whether the row in database has been updated or not
-    def __update_single_column(self, stock, date_values, currency, version, table_name, column_name, overwrite):
+    def _update_single_column(self, stock, date_values, currency, version, table_name, column_name, overwrite):
         if currency is not None:
             currency = currency.upper()
         # extract the existing records of the stock and version
@@ -153,7 +152,7 @@ class Database:
             currency_attr_name = self.FUNDAMENTAL_TABLE_COLUMNS.get(column)[1]
             table_name = self.FUNDAMENTAL_TABLE_COLUMNS.get(column)[2]
             has_currency = currency_attr_name is not None
-            date_values, currency = self.__retrieve_date_values(stock, table_name, column, has_currency, version)
+            date_values, currency = self._retrieve_date_values(stock, table_name, column, has_currency, version)
             if len(date_values) > 0:
                 setattr(fin, value_attr_name, date_values)
                 if has_currency:
@@ -161,7 +160,7 @@ class Database:
                     setattr(fin, currency_attr_name, currency)
         return fin
 
-    def __retrieve_date_values(self, stock, table_name, column_name, has_currency, version='1'):
+    def _retrieve_date_values(self, stock, table_name, column_name, has_currency, version='1'):
         sql_select_currency = "SELECT DATE, " + column_name + ", CURRENCY " +\
                               " FROM " + table_name +\
                               " WHERE STOCK = '%s' AND VERSION = '%s'"

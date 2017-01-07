@@ -43,7 +43,7 @@ class StockPriceFetcher:
         for try_idx in range(num_retries):
             try:
                 filename = "/tmp/" + stock + "_prices.json"
-                if use_cache and StockPriceFetcher.__has_cache(filename):
+                if use_cache and StockPriceFetcher._has_cache(filename):
                     tmp_file = open(filename, "r")
                     json_text = tmp_file.read()
                     tmp_file.close()
@@ -55,7 +55,7 @@ class StockPriceFetcher:
                     tmp_file = open(filename, "w")
                     tmp_file.write(json_text)
                     tmp_file.close()
-                success = StockPriceFetcher.__parse_json(json_text, fin)
+                success = StockPriceFetcher._parse_json(json_text, fin)
                 if success:
                     return True
             except (fetcher_exception.FetcherException, urllib2.HTTPError) as err:
@@ -65,7 +65,7 @@ class StockPriceFetcher:
                     return False
 
     @staticmethod
-    def __has_cache(filename):
+    def _has_cache(filename):
         if not os.path.isfile(filename):
             return False
         tmp_file = open(filename, "r")
@@ -74,7 +74,7 @@ class StockPriceFetcher:
         return len(content) > 0
 
     @staticmethod
-    def __parse_json(json_text, fin):
+    def _parse_json(json_text, fin):
         """
         Parse the json response from the morningstar
         :param json_text: the json response
@@ -115,7 +115,7 @@ class StockPriceFetcher:
         open_prices = {}
         for idx in range(num_points):
             date_index = date_indexes[idx]
-            date_str = StockPriceFetcher.__convert_to_date(date_index)
+            date_str = StockPriceFetcher._convert_to_date(date_index)
             date_point = data_points[idx]
             assert len(date_point) == 4
             [close_price, higest_price, lowest_price, open_price] = date_point
@@ -131,7 +131,7 @@ class StockPriceFetcher:
         return True
 
     @staticmethod
-    def __convert_to_date(date_index):
+    def _convert_to_date(date_index):
         """
         Conver the date index to a date string in the format of "YYYY-MM-dd"
         :param date_index: the date index
