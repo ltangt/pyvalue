@@ -3,12 +3,10 @@
 # License: BSD
 import pymysql
 import sys
-import datetime
 from pyvalue import config
 
 
 class Database:
-    DB_ACCOUNT_FILE = "mysql_account.txt"
     DB_NAME = "investment"
     STOCK_QUOTE_TABLE = "yahoo_finance_stock_quote"
     STOCK_HISTORICAL_TABLE = "yahoo_finance_stock_historical"

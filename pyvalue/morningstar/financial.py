@@ -187,6 +187,12 @@ class Financial(object):
     def stock_daily_price_currency(self, value):
         self._stock_daily_price_currency = value
 
+    def get_latest_price(self):
+        if len(self.stock_daily_close_price) == 0:
+            return None
+        sorted_dates = sorted(self.stock_daily_close_price.keys(), cmp=cmp_date)
+        return self.stock_daily_close_price[sorted_dates[-1]]
+
     def debug_info(self):
         info = self._stock
         info += " : revenue =>"
@@ -207,6 +213,8 @@ class Financial(object):
         info += str(self.debt_to_equity)
         info += "\n current_ratio => "
         info += str(self.current_ratio)
+        info += "\n stock_daily_price_currency => "
+        info += str(self.stock_daily_price_currency)
         info += "\n stock_daily_close_price =>"
         info += str(self.stock_daily_close_price)
         info += "\n stock_daily_open_price =>"
@@ -232,8 +240,10 @@ def convert_date(date_text):
         last_qrt = now - datetime.timedelta(days=120)
         return last_qrt
     else:
-        return datetime.datetime.strptime(date_text, "%Y-%m")
-
+        try:
+            return datetime.datetime.strptime(date_text, "%Y-%m")
+        except:
+            return datetime.datetime.strptime(date_text, "%Y-%m-%d")
 
 def cmp_date(date_text1, date_text2):
     """

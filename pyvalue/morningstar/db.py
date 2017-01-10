@@ -145,8 +145,15 @@ class Database:
         cur.close()
         return has_updated
 
-    def retrieve(self, stock, version='1'):
-        fin = financial.Financial(stock)
+    def retrieve_fundamentals(self, fin, version='1'):
+        """
+        Retrive the fundamentals for the stock
+        :param fin: the morningstar financial object of the stock
+        :type fin: financial.Financial
+        :param version:
+        :return: Sucess or not
+        """
+        stock = fin.stock
         for column in self.FUNDAMENTAL_TABLE_COLUMNS:
             value_attr_name = self.FUNDAMENTAL_TABLE_COLUMNS.get(column)[0]
             currency_attr_name = self.FUNDAMENTAL_TABLE_COLUMNS.get(column)[1]
@@ -158,7 +165,29 @@ class Database:
                 if has_currency:
                     assert currency is not None
                     setattr(fin, currency_attr_name, currency)
-        return fin
+        return True
+
+    def retrieve_historical_prices(self, fin, version='1'):
+        """
+        Retrive the fundamentals for the stock
+        :param fin: the morningstar financial object of the stock
+        :type fin: financial.Financial
+        :param version:
+        :return: Sucess or not
+        """
+        stock = fin.stock
+        for column in self.STOCK_PRICE_TABLE_COLUMNS:
+            value_attr_name = self.STOCK_PRICE_TABLE_COLUMNS.get(column)[0]
+            currency_attr_name = self.STOCK_PRICE_TABLE_COLUMNS.get(column)[1]
+            table_name = self.STOCK_PRICE_TABLE_COLUMNS.get(column)[2]
+            has_currency = currency_attr_name is not None
+            date_values, currency = self._retrieve_date_values(stock, table_name, column, has_currency, version)
+            if len(date_values) > 0:
+                setattr(fin, value_attr_name, date_values)
+                if has_currency:
+                    assert currency is not None
+                    setattr(fin, currency_attr_name, currency)
+        return True
 
     def _retrieve_date_values(self, stock, table_name, column_name, has_currency, version='1'):
         sql_select_currency = "SELECT DATE, " + column_name + ", CURRENCY " +\

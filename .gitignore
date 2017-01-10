@@ -94,7 +94,6 @@ ENV/
 
 pyvalue.iml
 
-mysql_account.txt
 config.ini
 
 tmp/
