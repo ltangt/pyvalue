@@ -7,6 +7,7 @@ import datetime
 from yahoo_finance import Share
 from dateutil.parser import parse
 from pyvalue.yahoofinance.financial import DailyRecord
+from pyvalue.log_info import LogInfo
 
 
 class YahooFinanceFetcherException(Exception):
@@ -27,9 +28,9 @@ class Fetcher:
                 self._fetch_quote(fin, share)
                 return True
             except YahooFinanceFetcherException as err:
-                print stock + " : " + err.message + " in the " + str((try_idx + 1)) + " time"
+                LogInfo.info(stock + " : " + err.message + " in the " + str((try_idx + 1)) + " time")
                 if try_idx == num_retries - 1:
-                    sys.stderr.write('Failed to retrieve information for ' + stock + '\n')
+                    LogInfo.error('Failed to retrieve information for ' + stock )
                     return False
 
     def _fetch_quote(self, f, share):
@@ -64,7 +65,7 @@ class Fetcher:
                     raise YahooFinanceFetcherException("historical result is empty")
                 return True
             except YahooFinanceFetcherException as err:
-                print stock + " : " + err.message + " in the " + str((try_idx + 1)) + " time"
+                LogInfo.info(stock + " : " + err.message + " in the " + str((try_idx + 1)) + " time")
                 if try_idx == num_retries - 1:
                     sys.stderr.write('Failed to retrieve information for ' + stock + '\n')
                     return False

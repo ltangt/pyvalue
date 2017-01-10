@@ -3,12 +3,12 @@
 # License: BSD
 import json
 import os
-import sys
 import urllib2
 import datetime
 
 from pyvalue.morningstar import fetcher_exception
 from pyvalue.morningstar import financial
+from pyvalue.log_info import LogInfo
 
 
 class StockPriceFetcher:
@@ -59,9 +59,9 @@ class StockPriceFetcher:
                 if success:
                     return True
             except (fetcher_exception.FetcherException, urllib2.HTTPError) as err:
-                print stock + " : " + err.message + " in the "+str((try_idx+1))+" time for "+stock
+                LogInfo.info(stock + " : " + err.message + " in the "+str((try_idx+1))+" time for "+stock)
                 if try_idx == num_retries - 1:
-                    sys.stderr.write('Failed to retrieve information for '+stock+'\n')
+                    LogInfo.error('Failed to retrieve information for '+stock)
                     return False
 
     @staticmethod

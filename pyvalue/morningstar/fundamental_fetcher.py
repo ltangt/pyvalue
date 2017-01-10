@@ -4,11 +4,11 @@
 import StringIO
 import csv
 import os
-import sys
 import urllib2
 
 from pyvalue.morningstar import fetcher_exception
 from pyvalue.morningstar import financial
+from pyvalue.log_info import LogInfo
 
 
 class FundamentalFetcher:
@@ -65,9 +65,9 @@ class FundamentalFetcher:
                 self._parse_html(html, fin)
                 return True
             except (fetcher_exception.FetcherException, urllib2.HTTPError) as err:
-                print stock + " : " + err.message + " in the "+str((try_idx+1))+" time"
+                LogInfo.info(stock + " : " + err.message + " in the "+str((try_idx+1))+" time")
                 if try_idx == num_retries - 1:
-                    sys.stderr.write('Failed to retrieve information for '+stock+'\n')
+                    LogInfo.error('Failed to retrieve information for '+stock)
                     return False
 
     @staticmethod

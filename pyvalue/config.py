@@ -4,6 +4,7 @@
 import ConfigParser
 import os
 from pyvalue import constants
+from pyvalue.log_info import LogInfo
 
 config = None
 
@@ -14,7 +15,7 @@ def init():
     global config
     if config is None:
         config = ConfigParser.ConfigParser()
-        print "Load config file : "+config_file
+        LogInfo.info("Load config file : "+config_file)
         config.read(config_file)
 
 

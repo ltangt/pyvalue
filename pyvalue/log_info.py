@@ -1,6 +1,8 @@
-# The key-value based log information
+# The log util
 # Author: Liang Tang
 # License: BSD
+import sys
+import datetime
 
 
 class LogInfo(object):
@@ -57,6 +59,22 @@ class LogInfo(object):
     def println(self, msg):
         self.put_raw(msg, "")
         print msg
+
+    @staticmethod
+    def info(msg, newline=True):
+        sys.stdout.write("[" + LogInfo._date_str() + "] "+msg)
+        if newline:
+            sys.stdout.write("\n")
+
+    @staticmethod
+    def error(msg, newline=True):
+        sys.stderr.write("[" + LogInfo._date_str() + "] " + msg + "\n")
+        if newline:
+            sys.stdout.write("\n")
+
+    @staticmethod
+    def _date_str():
+        return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     def __str__(self):
         return str(self._key_values)

@@ -5,6 +5,7 @@ import pymysql
 
 from pyvalue.morningstar import financial
 from pyvalue import config
+from pyvalue.log_info import LogInfo
 
 
 class Database:
@@ -40,7 +41,7 @@ class Database:
 
     def connect(self):
         if self._conn is not None:
-            print "already connected"
+            LogInfo.info("already connected")
             return
         self._conn = pymysql.connect(host=self._db_server,
                                      port=self._db_port,
@@ -121,11 +122,17 @@ class Database:
                      ") VALUES('%s','%s','%s','%s')"
         sql_insert_currency = "INSERT INTO " + table_name + "(STOCK, DATE, VERSION, " + column_name + \
                               ", CURRENCY) VALUES('%s','%s','%s','%s', '%s')"
-        sql_update = "UPDATE " + table_name + " SET "+column_name+" = '%s' WHERE STOCK = '%s' AND DATE = '%s' " \
-                     " AND VERSION = '%s'"
-        sql_update_currency = "UPDATE " + table_name + " SET " + column_name + " = '%s', " + \
-                              " CURRENCY = '%s' WHERE STOCK = '%s' AND DATE = '%s' " + \
-                              " AND VERSION = '%s'"
+        sql_update = "UPDATE " + table_name \
+                     + " SET TS=CURRENT_TIMESTAMP(), " \
+                     + column_name + " = '%s' " \
+                     + " WHERE STOCK = '%s' AND DATE = '%s' " \
+                     + " AND VERSION = '%s'"
+        sql_update_currency = "UPDATE " + table_name\
+                              + " SET TS=CURRENT_TIMESTAMP(), "\
+                              + column_name + " = '%s', "\
+                              + " CURRENCY = '%s' " \
+                              + " WHERE STOCK = '%s' AND DATE = '%s' "\
+                              + " AND VERSION = '%s'"
         has_updated = False
         for date in date_values:
             value = date_values[date]

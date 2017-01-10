@@ -2,8 +2,8 @@
 # Author: Liang Tang
 # License: BSD
 import pymysql
-import sys
 from pyvalue import config
+from pyvalue.log_info import LogInfo
 
 
 class Database:
@@ -21,7 +21,7 @@ class Database:
 
     def connect(self):
         if self._conn is not None:
-            print "already connected"
+            LogInfo.info("already connected")
             return
         self._conn = pymysql.connect(host=self._db_server,
                                      port=self._db_port,
@@ -35,10 +35,10 @@ class Database:
     def update_quote(self, fin, version='1'):
         stock = fin.stock
         if stock is None:
-            sys.stderr.write("the stock is None \n")
+            LogInfo.error("the stock is None")
             return False
         if fin.trade_datetime is None:
-            sys.stderr.write(stock+" : the trade datetime is None \n")
+            LogInfo.error(stock+" : the trade datetime is None")
             return False
         cur = self._conn.cursor()
         cur.execute("SELECT STOCK, TRADE_DATETIME_UTC FROM " + self.STOCK_QUOTE_TABLE
@@ -64,7 +64,8 @@ class Database:
                      "  %s,%s,%s,%s," \
                      "  %s,%s,%s,%s )"
         sql_update = "UPDATE " + Database.STOCK_QUOTE_TABLE + " " + \
-                     "SET PRICE = %s," \
+                     "SET TS=CURRENT_TIMESTAMP(), " \
+                     "  PRICE = %s," \
                      "  DAYS_HIGH = %s, " \
                      "  DAYS_LOW = %s, " \
                      "  PRICE_CHANGE = %s, " \
@@ -136,7 +137,8 @@ class Database:
                      "VALUES('%s','%s','%s'," \
                      "  %s,%s,%s,%s,%s,%s)"
         sql_update = "UPDATE " + Database.STOCK_HISTORICAL_TABLE + " " + \
-                     "SET CLOSE = %s," \
+                     "SET TS=CURRENT_TIMESTAMP(), " \
+                     "  CLOSE = %s," \
                      "  OPEN = %s, " \
                      "  LOW = %s, " \
                      "  HIGH = %s, " \
