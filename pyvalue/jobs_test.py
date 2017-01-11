@@ -6,5 +6,5 @@ from pyvalue import jobs
 #jobs.update_stock_morningstar_fundamental('ACE')
 #jobs.update_sp500_morningstars_fundamental()
 #jobs.update_sp500_morningstars_fundamental(overwrite=False, use_cache=True)
-#jobs.update_sp500_yahoofinance_stock_quote()
-jobs.update_sp500_yahoofinance_stock_historical('2016-01-01', '2017-01-04')
+jobs.update_sp500_yahoofinance_stock_quote()
+#jobs.update_sp500_yahoofinance_stock_historical('2016-01-01', '2017-01-04')

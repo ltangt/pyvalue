@@ -41,7 +41,7 @@ def update_sp500_morningstars_fundamental(columns=None, overwrite=True, use_cach
     db_conn = MorningstarDB()
     db_conn.connect()
     num_stock_updated = 0
-    for stock in constants.SP500_2015_10:
+    for stock in constants.get_sp_500_companies():
         fin = MorningstarFinancial(stock)
         success = MorningstarFetcher.fetch_fundamental(fin, use_cache=use_cache)
         log_msg = ""
@@ -63,7 +63,7 @@ def update_sp500_morningstars_stock_price(start_date, end_date, overwrite=True, 
     db_conn = MorningstarDB()
     db_conn.connect()
     num_stock_updated = 0
-    for stock in constants.SP500_2015_10:
+    for stock in constants.get_sp_500_companies():
         fin = MorningstarFinancial(stock)
         success = MorningstarFetcher.fetch_stock_historical_price(fin, start_date, end_date, use_cache=use_cache)
         log_msg = ""
@@ -86,7 +86,7 @@ def update_sp500_yahoofinance_stock_quote():
     db_conn = YahooFinancialDB()
     db_conn.connect()
     num_stock_updated = 0
-    for stock in constants.SP500_2015_10:
+    for stock in constants.get_sp_500_companies():
         fin = YahooFinanceFinancial(stock)
         success = fetcher.fetch_quote(fin)
         log_msg = ""
@@ -106,7 +106,7 @@ def update_sp500_yahoofinance_stock_historical(start_date, end_date):
     db_conn = YahooFinancialDB()
     db_conn.connect()
     num_stock_updated = 0
-    for stock in constants.SP500_2015_10:
+    for stock in constants.get_sp_500_companies():
         fin = YahooFinanceFinancial(stock)
         success = fetcher.fetch_historical(fin, start_date, end_date)
         log_msg = ""

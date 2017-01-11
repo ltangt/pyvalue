@@ -1,6 +1,9 @@
 # Global constants used by this project
 # Author: Liang Tang
 # License: BSD
+import os
+import sys
+import csv
 
 SP500_2015_10 = [
     'A', 'AA', 'AAL', 'AAP', 'AAPL', 'ABBV', 'ABC', 'ABT', 'ACE', 'ACN', 'ADBE',
@@ -54,3 +57,24 @@ SP500_2015_10 = [
     'XYL', 'YHOO', 'YUM', 'ZBH', 'ZION', 'ZTS']
 
 US_10Y_NOTE_YIELD = 0.02543
+
+SP500_2016 = None
+
+
+def get_sp_500_companies():
+    global SP500_2016
+    if SP500_2016 is not None:
+        return SP500_2016
+    SP500_2016 = []
+    package_dir = os.path.dirname(__file__)
+    sp500_file_path = package_dir + "/../sp500.csv"
+    sp500_file = open(sp500_file_path, "rb")
+    reader = csv.reader(sp500_file, delimiter=',')
+    next(reader)
+    for row in reader:
+        SP500_2016.append(row[0])
+    sp500_file.close()
+    return SP500_2016
+
+
+
