@@ -27,7 +27,7 @@ class Fetcher:
                 share = Share(stock)
                 self._fetch_quote(fin, share)
                 return True
-            except YahooFinanceFetcherException as err:
+            except Exception as err:
                 LogInfo.info(stock + " : " + err.message + " in the " + str((try_idx + 1)) + " time")
                 if try_idx == num_retries - 1:
                     LogInfo.error('Failed to retrieve information for ' + stock )
@@ -64,7 +64,7 @@ class Fetcher:
                 if ret == 0:
                     raise YahooFinanceFetcherException("historical result is empty")
                 return True
-            except YahooFinanceFetcherException as err:
+            except Exception as err:
                 LogInfo.info(stock + " : " + err.message + " in the " + str((try_idx + 1)) + " time")
                 if try_idx == num_retries - 1:
                     sys.stderr.write('Failed to retrieve information for ' + stock + '\n')

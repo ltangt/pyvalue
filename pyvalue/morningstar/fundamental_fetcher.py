@@ -64,7 +64,7 @@ class FundamentalFetcher:
                     tmp_file.close()
                 self._parse_html(html, fin)
                 return True
-            except (fetcher_exception.FetcherException, urllib2.HTTPError) as err:
+            except Exception as err:
                 LogInfo.info(stock + " : " + err.message + " in the "+str((try_idx+1))+" time")
                 if try_idx == num_retries - 1:
                     LogInfo.error('Failed to retrieve information for '+stock)

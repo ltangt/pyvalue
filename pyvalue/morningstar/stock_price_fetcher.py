@@ -58,7 +58,7 @@ class StockPriceFetcher:
                 success = StockPriceFetcher._parse_json(json_text, fin)
                 if success:
                     return True
-            except (fetcher_exception.FetcherException, urllib2.HTTPError) as err:
+            except Exception as err:
                 LogInfo.info(stock + " : " + err.message + " in the "+str((try_idx+1))+" time for "+stock)
                 if try_idx == num_retries - 1:
                     LogInfo.error('Failed to retrieve information for '+stock)
