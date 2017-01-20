@@ -11,7 +11,7 @@ from pyvalue.yahoofinance.fetcher import Fetcher as YahooFinanceFetcher
 from pyvalue.log_info import LogInfo
 
 
-def update_stock_morningstar_fundamental(stock, overwrite=True, use_cache=False):
+def update_morningstar_fundamental(stock, overwrite=True, use_cache=False):
     fin = MorningstarFinancial(stock)
     success = MorningstarFetcher.fetch_fundamental(fin, use_cache=False)
     if (fin is None) or (not success):
@@ -24,7 +24,7 @@ def update_stock_morningstar_fundamental(stock, overwrite=True, use_cache=False)
     db_conn.close()
 
 
-def update_stock_morningstar_price_historical(stock, start_date, end_date, overwrite=True, use_cache=False):
+def update_morningstar_stock_historical(stock, start_date, end_date, overwrite=True, use_cache=False):
     fin = MorningstarFinancial(stock)
     success = MorningstarFetcher.fetch_stock_historical_price(fin, start_date, end_date, use_cache=False)
     if (fin is None) or (not success):
@@ -59,7 +59,7 @@ def update_sp500_morningstars_fundamental(columns=None, overwrite=True, use_cach
     db_conn.close()
 
 
-def update_sp500_morningstars_price_historical(start_date, end_date, overwrite=True, use_cache=False):
+def update_sp500_morningstars_stock_historical(start_date, end_date, overwrite=True, use_cache=False):
     db_conn = MorningstarDB()
     db_conn.connect()
     num_stock_updated = 0
