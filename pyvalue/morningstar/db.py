@@ -139,7 +139,7 @@ class Database:
             value = date_values[date]
             # check the value is nan or not
             if math.isnan(value):
-                LogInfo.error(stock + ' : the value of '+column_name+ '/'+table_name+ ' at '+date+' is nan')
+                LogInfo.error(stock + ' : the value of '+column_name+ '/'+table_name+ ' at '+date+' is nan, skip')
                 continue
             try:
                 if date in existing_dates:
