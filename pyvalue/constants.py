@@ -80,3 +80,4 @@ def get_sp_500_companies():
 def get_sp_500_universe():
     universe = get_sp_500_companies()
     universe.append("SPY")
+    return universe
