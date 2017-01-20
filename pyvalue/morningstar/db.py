@@ -2,6 +2,7 @@
 # Author: Liang Tang
 # License: BSD
 import pymysql
+import math
 
 from pyvalue.morningstar import financial
 from pyvalue import config
@@ -136,19 +137,26 @@ class Database:
         has_updated = False
         for date in date_values:
             value = date_values[date]
-            if date in existing_dates:
-                if overwrite:
-                    if currency is None:
-                        cur.execute(sql_update % (value, stock, date, version))
-                    else:
-                        cur.execute(sql_update_currency % (value, currency, stock, date, version))
-                    has_updated = True
-            else:
-                if currency is None:
-                    cur.execute(sql_insert % (stock, date, version, value))
+            # check the value is nan or not
+            if math.isnan(value):
+                LogInfo.error(stock + ' : the value of '+column_name+ '/'+table_name+ ' at '+date+' is nan')
+                continue
+            try:
+                if date in existing_dates:
+                    if overwrite:
+                        if currency is None:
+                            cur.execute(sql_update % (value, stock, date, version))
+                        else:
+                            cur.execute(sql_update_currency % (value, currency, stock, date, version))
+                        has_updated = True
                 else:
-                    cur.execute(sql_insert_currency % (stock, date, version, value, currency))
-                has_updated = True
+                    if currency is None:
+                        cur.execute(sql_insert % (stock, date, version, value))
+                    else:
+                        cur.execute(sql_insert_currency % (stock, date, version, value, currency))
+                    has_updated = True
+            except pymysql.err.DataError as err:
+                LogInfo.error(err.message)
         cur.close()
         return has_updated
 
