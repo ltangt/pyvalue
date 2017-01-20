@@ -15,13 +15,13 @@ class StockScorer:
         pass
 
     @abstractmethod
-    def score(self, f, log=None):
+    def score(self, fin, log=None):
         """
         Compute the score for a stock
         :param log: the log information
         :type log: pyvalue.log_info.LogInfo
-        :param f: the morningstar financial object of the stock
-        :type f: financial.Financial
+        :param fin: the morningstar financial object of the stock
+        :type fin: financial.Financial
         :return: the score
         """
         raise NotImplementedError()
@@ -68,16 +68,16 @@ class DebtToAssertScorer(StockScorer):
         else:
             self._start_datetime = start_datetime
 
-    def score(self, f, log=None):
+    def score(self, fin, log=None):
         """
         Compute the score for a stock
-        :param f: the morningstar financial object of the stock
-        :type f: financial.Financial
+        :param fin: the morningstar financial object of the stock
+        :type fin: financial.Financial
         :param log: the log information
         :type log: pyvalue.log_info.LogInfo
         :return: the score
         """
-        valid_entries = date_values_after(f.debt_to_equity, self._start_datetime)
+        valid_entries = date_values_after(fin.debt_to_equity, self._start_datetime)
         avg_debt_to_equity = sum([valid_entries.get(date_str) for date_str in valid_entries]) / len(valid_entries)
         score = 1.0 if avg_debt_to_equity <= self._threshold else 0.0
         return score
@@ -99,16 +99,16 @@ class CurrentRatioScorer(StockScorer):
         else:
             self._start_datetime = start_datetime
 
-    def score(self, f, log):
+    def score(self, fin, log):
         """
         Compute the score for a stock
-        :param f: the morningstar financial object of the stock
-        :type f: financial.Financial
+        :param fin: the morningstar financial object of the stock
+        :type fin: financial.Financial
         :param log: the log information
         :type log: pyvalue.log_info.LogInfo
         :return: the score
         """
-        valid_entries = date_values_after(f.current_ratio, self._start_datetime)
+        valid_entries = date_values_after(fin.current_ratio, self._start_datetime)
         avg_ratio = sum([valid_entries.get(date_str) for date_str in valid_entries]) / len(valid_entries)
         score = 1.0 if avg_ratio >= self._threshold else 0.0
         return score
@@ -118,17 +118,17 @@ class IntrinsicValueToMarketPrice(StockScorer):
     def __init__(self):
         pass
 
-    def score(self, f, log=None):
+    def score(self, fin, log=None):
         """
         Compute the score for a stock
-        :param f: the morningstar financial object of the stock
-        :type f: financial.Financial
+        :param fin: the morningstar financial object of the stock
+        :type fin: financial.Financial
         :param log: the log information
         :type log: pyvalue.log_info.LogInfo
         :return: the score
         """
-        iv = StockIntrinsicValue.intrinsic_value(f)
-        latest_price = f.get_latest_price()
+        iv = StockIntrinsicValue.intrinsic_value(fin)
+        latest_price = fin.get_latest_price()
         if iv is None or latest_price is None:
             return None
         else:

@@ -77,4 +77,6 @@ def get_sp_500_companies():
     return SP500_2016
 
 
-
+def get_sp_500_universe():
+    universe = get_sp_500_companies()
+    universe.append("SPY")
