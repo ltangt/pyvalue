@@ -17,6 +17,7 @@ class FundamentalFetcher:
 
     REVENUE_LINE_PREFIX = "Revenue"
     NET_INCOME_LINE_PREFIX = "Net Income"
+    FREE_CASH_FLOW_LINE_PREFIX = "Free Cash Flow"
     BOOK_VALUE_PER_SHARE_PREFIX = "Book Value Per Share"
     SHARE_MIL_PREFIX = "Shares Mil"
     OPERATING_INCOME_PREFIX = "Operating Income"
@@ -96,15 +97,19 @@ class FundamentalFetcher:
         dates = FundamentalFetcher._get_dates(line_dates)
 
         # Get the financial values
-        fin.revenue_mil, financial.revenue_currency = \
+        fin.revenue_mil, fin.revenue_currency = \
             FundamentalFetcher._parse_financial_with_dates(sec_lines, dates, self.REVENUE_LINE_PREFIX,
                                                            required_unit="mil")
 
-        fin.net_income_mil, financial.net_income_currency = \
+        fin.net_income_mil, fin.net_income_currency = \
             FundamentalFetcher._parse_financial_with_dates(sec_lines, dates, self.NET_INCOME_LINE_PREFIX,
                                                            required_unit="mil")
 
-        fin.book_value_per_share, financial.book_value_currency = \
+        fin.free_cash_flow_mil, fin.free_cash_flow_currency = \
+            FundamentalFetcher._parse_financial_with_dates(sec_lines, dates, self.FREE_CASH_FLOW_LINE_PREFIX,
+                                                           required_unit="mil")
+
+        fin.book_value_per_share, fin.book_value_currency = \
             FundamentalFetcher._parse_financial_with_dates(sec_lines, dates, self.BOOK_VALUE_PER_SHARE_PREFIX,
                                                            has_currency=True, has_unit=False)
 
@@ -112,7 +117,7 @@ class FundamentalFetcher:
             FundamentalFetcher._parse_financial_with_dates(sec_lines, dates, self.SHARE_MIL_PREFIX,
                                                            has_currency=False, has_unit=False)
 
-        fin.operating_income_mil, financial.operating_income_currency = \
+        fin.operating_income_mil, fin.operating_income_currency = \
             FundamentalFetcher._parse_financial_with_dates(sec_lines, dates, self.OPERATING_INCOME_PREFIX,
                                                            required_unit="mil")
 

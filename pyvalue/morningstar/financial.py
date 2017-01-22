@@ -13,6 +13,8 @@ class Financial(object):
         self._revenue_currency = None  # the currency of the revenue, e.g., USD
         self._net_income_mil = {}  # the key is the date and the value is the net income in millions
         self._net_income_currency = None  # the currency of the net income, e.g., USD
+        self._free_cash_flow_mil = {}  # the key is the date and the value is the free cash flow in millions
+        self._free_cash_flow_currency = None  # the currency of the free cash flow, e.g., USD
         self._book_value_per_share = {}  # the key is the date and the value is the book value per share
         self._book_value_currency = None  # the currency of the book value, e.g., USD
         self._share_mil = {}  # the total number of shares
@@ -66,6 +68,22 @@ class Financial(object):
     @net_income_currency.setter
     def net_income_currency(self, value):
         self._net_income_currency = value
+
+    @property
+    def free_cash_flow_mil(self):
+        return self._free_cash_flow_mil
+
+    @free_cash_flow_mil.setter
+    def free_cash_flow_mil(self, free_cash_flow):
+        self._free_cash_flow_mil = free_cash_flow
+
+    @property
+    def free_cash_flow_currency(self):
+        return self._free_cash_flow_currency
+
+    @free_cash_flow_currency.setter
+    def free_cash_flow_currency(self, value):
+        self._free_cash_flow_currency = value
 
     @property
     def book_value_per_share(self):
@@ -199,6 +217,8 @@ class Financial(object):
         info += str(self._revenue_mil)
         info += "\n net_income => "
         info += str(self._net_income_mil)
+        info += "\n free_cash_flow => "
+        info += str(self._free_cash_flow_mil)
         info += "\n book_value => "
         info += str(self.book_value_per_share)
         info += "\n share_mil => "

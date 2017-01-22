@@ -19,6 +19,15 @@ CREATE TABLE `investment`.`morningstar_annual_net_income`(
   PRIMARY KEY(`STOCK`, `DATE`, `VERSION`)
 ) ENGINE = InnoDB;
 
+CREATE TABLE `investment`.`morningstar_annual_free_cash_flow`(
+  `STOCK` VARCHAR(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `DATE` VARCHAR(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `VERSION` VARCHAR(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `TS` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `FREE_CASH_FLOW_MIL` DOUBLE NOT NULL,
+  `CURRENCY` VARCHAR(24) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'USD',
+  PRIMARY KEY(`STOCK`, `DATE`, `VERSION`)
+) ENGINE = InnoDB;
 
 CREATE TABLE `investment`.`morningstar_annual_revenue`(
   `STOCK` VARCHAR(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
@@ -109,6 +118,8 @@ CREATE TABLE `investment`.`morningstar_stock_price`(
 ) ENGINE = InnoDB;
 
 
+
+------------------------------------------------------------------------------------------------------------
 -- Yahoo Finance tables
 CREATE TABLE `investment`.`yahoo_finance_stock_quote`(
   `STOCK` VARCHAR(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,

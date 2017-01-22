@@ -13,7 +13,7 @@ from pyvalue.log_info import LogInfo
 
 def update_morningstar_fundamental(stock, overwrite=True, use_cache=False):
     fin = MorningstarFinancial(stock)
-    success = MorningstarFetcher.fetch_fundamental(fin, use_cache=False)
+    success = MorningstarFetcher.fetch_fundamental(fin, use_cache=use_cache)
     if (fin is None) or (not success):
         LogInfo.info("No result")
         return
@@ -26,7 +26,7 @@ def update_morningstar_fundamental(stock, overwrite=True, use_cache=False):
 
 def update_morningstar_stock_historical(stock, start_date, end_date, overwrite=True, use_cache=False):
     fin = MorningstarFinancial(stock)
-    success = MorningstarFetcher.fetch_stock_historical_price(fin, start_date, end_date, use_cache=False)
+    success = MorningstarFetcher.fetch_stock_historical_price(fin, start_date, end_date, use_cache=use_cache)
     if (fin is None) or (not success):
         LogInfo.info("No result")
         return
@@ -41,7 +41,7 @@ def update_sp500_morningstars_fundamental(columns=None, overwrite=True, use_cach
     db_conn = MorningstarDB()
     db_conn.connect()
     num_stock_updated = 0
-    for stock in constants.get_sp_500_universe():
+    for stock in constants.get_sp_500_companies():
         fin = MorningstarFinancial(stock)
         success = MorningstarFetcher.fetch_fundamental(fin, use_cache=use_cache)
         log_msg = ""

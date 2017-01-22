@@ -16,6 +16,7 @@ class Database:
     FUNDAMENTAL_TABLE_COLUMNS = {
         'REVENUE_MIL': ('revenue_mil', 'revenue_currency', 'morningstar_annual_revenue'),
         'NET_INCOME_MIL': ('net_income_mil', 'net_income_currency', 'morningstar_annual_net_income'),
+        'FREE_CASH_FLOW_MIL': ('free_cash_flow_mil', 'free_cash_flow_currency', 'morningstar_annual_free_cash_flow'),
         'BOOK_VALUE_PER_SHARE': ('book_value_per_share', 'book_value_currency', 'morningstar_book_value_per_share'),
         'SHARE_MIL': ('share_mil', None, 'morningstar_share_outstanding'),
         'OPERATING_INCOME_MIL': ('operating_income_mil', 'operating_income_currency',
