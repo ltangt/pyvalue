@@ -35,7 +35,7 @@ class Fetcher:
                 csv = response.read()
                 if len(csv.strip()) == 0:
                     raise YahooFinanceFetcherException("Empty response of the http request.")
-                self._parse_quote_csv(csv, f)
+                Fetcher._parse_quote_csv(csv, f)
                 return True
             except Exception as err:
                 LogInfo.info(stock + " : " + err.message + " in the " + str((try_idx + 1)) + " time")
@@ -43,7 +43,8 @@ class Fetcher:
                     LogInfo.error('Failed to retrieve information for ' + stock)
                     return False
 
-    def _parse_quote_csv(self, csv, f):
+    @staticmethod
+    def _parse_quote_csv(csv, f):
         """
         :param csv: the return csv data from Yahoo finance
         :type csv: str
@@ -69,15 +70,15 @@ class Fetcher:
         column_idx += 1
         f.volume = float(data[column_idx])
         column_idx += 1
-        f.market_cap_in_millions = self._parse_number_in_millions(data[column_idx])
+        f.market_cap_in_millions = Fetcher._parse_number_in_millions(data[column_idx])
         column_idx += 1
         f.book_value = float(data[column_idx])
         column_idx += 1
-        f.ebitda_in_millions = self._parse_number_in_millions(data[column_idx])
+        f.ebitda_in_millions = Fetcher._parse_number_in_millions(data[column_idx])
         column_idx += 1
-        f.dividend_share = float(data[column_idx])
+        f.dividend_share = Fetcher._parse_float(data[column_idx])
         column_idx += 1
-        f.dividend_yield = float(data[column_idx])
+        f.dividend_yield = Fetcher._parse_float(data[column_idx])
         column_idx += 1
         f.earning_share = float(data[column_idx])
         column_idx += 1
@@ -111,7 +112,7 @@ class Fetcher:
                 csv = response.read()
                 if len(csv.strip()) == 0:
                     raise YahooFinanceFetcherException("Empty response of the http request.")
-                self._parse_historical_csv(csv, f)
+                Fetcher._parse_historical_csv(csv, f)
                 return True
             except Exception as err:
                 LogInfo.info(stock + " : " + err.message + " in the " + str((try_idx + 1)) + " time")
@@ -119,7 +120,8 @@ class Fetcher:
                     LogInfo.error('Failed to retrieve information for ' + stock)
                     return False
 
-    def _parse_historical_csv(self, csv, f):
+    @staticmethod
+    def _parse_historical_csv(csv, f):
         """
         :param csv: the return csv data from Yahoo finance
         :type csv: str
@@ -175,4 +177,11 @@ class Fetcher:
         month = int(tokens[1])
         day = int(tokens[2])
         return year, month, day
+
+    @staticmethod
+    def _parse_float(val_str):
+        if val_str == 'N/A' or val_str == 'n/a' or val_str == 'NA':
+            return None
+        else:
+            return float(val_str)
 
