@@ -67,7 +67,7 @@ class Fetcher:
         column_idx += 1
         f.days_high = Fetcher._parse_float(data[column_idx])
         column_idx += 1
-        f.change = Fetcher._parse_float(data[column_idx])
+        f.price_change = Fetcher._parse_float(data[column_idx])
         column_idx += 1
         f.volume = Fetcher._parse_float(data[column_idx])
         column_idx += 1
