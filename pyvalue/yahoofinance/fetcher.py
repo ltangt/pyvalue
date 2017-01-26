@@ -1,10 +1,11 @@
 # Yahoo finance api data fetcher
 # Author: Liang Tang
 # License: BSD
-import datetime
 import urllib2
-from dateutil.parser import parse
+import pytz
 
+from dateutil.parser import parse
+from datetime import datetime
 from pyvalue.yahoofinance.financial import DailyRecord
 from pyvalue.log_info import LogInfo
 
@@ -59,6 +60,8 @@ class Fetcher:
         trade_datetime_text = (data[column_idx] + " " + data[column_idx+1]).replace('"', '')
         if trade_datetime_text is None:
             raise YahooFinanceFetcherException(stock + " does not has trading time.")
+        # Convert the US eastern time to UTC time
+        trade_datetime_text = Fetcher.edt_to_utc(trade_datetime_text)
         f.trade_datetime = parse(trade_datetime_text)
         column_idx += 2
         f.price = Fetcher._parse_float(data[column_idx])
@@ -140,7 +143,7 @@ class Fetcher:
             record = DailyRecord()
             column_idx = 0
             date_text = elems[column_idx]
-            record.date = datetime.datetime.strptime(date_text, "%Y-%m-%d").date()
+            record.date = datetime.strptime(date_text, "%Y-%m-%d").date()
             column_idx += 1
             record.open = elems[column_idx]
             column_idx += 1
@@ -185,4 +188,21 @@ class Fetcher:
             return None
         else:
             return float(val_str)
+
+    @staticmethod
+    def edt_to_utc(date, mask='%m/%d/%Y %I:%M%p'):
+        """
+        Convert EDT (Eastern Daylight Time) to UTC
+        :param date: EDT date string e.g. '5/26/2014 4:00pm'
+        :param mask: format of input date e.g '%m/%d/%Y %I:%M%'
+        :return: UTC date string e.g '2014-03-05 12:23:00'
+        """
+        utc = pytz.utc
+        eastern = pytz.timezone('US/Eastern')
+        # date string for yahoo can contains 0 rather than 12.
+        # This means that it cannot be parsed with %I see GH issue #15.
+        date_ = datetime.strptime(date.replace(" 0:", " 12:"), mask)
+        date_eastern = eastern.localize(date_, is_dst=None)
+        date_utc = date_eastern.astimezone(utc)
+        return date_utc.strftime('%Y-%m-%d %H:%M:%S')
 
