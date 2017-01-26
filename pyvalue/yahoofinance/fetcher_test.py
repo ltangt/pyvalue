@@ -3,7 +3,7 @@ from pyvalue.yahoofinance import db
 from pyvalue.yahoofinance import financial
 
 fetcher = fetcher.Fetcher()
-fin = financial.Financial('YHOO')
+fin = financial.Financial('YUM')
 fetcher.fetch_historical(fin, '2016-12-01', '2017-01-05')
 fetcher.fetch_quote(fin)
 print fin.debug_info()

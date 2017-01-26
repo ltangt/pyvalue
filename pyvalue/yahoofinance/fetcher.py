@@ -53,6 +53,7 @@ class Fetcher:
         :return:
         """
         stock = f.stock
+        csv = csv.replace('\n', '')
         data = csv.split(',')
         column_idx = 0
         trade_datetime_text = (data[column_idx] + " " + data[column_idx+1]).replace('"', '')
@@ -60,19 +61,19 @@ class Fetcher:
             raise YahooFinanceFetcherException(stock + " does not has trading time.")
         f.trade_datetime = parse(trade_datetime_text)
         column_idx += 2
-        f.price = float(data[column_idx])
+        f.price = Fetcher._parse_float(data[column_idx])
         column_idx += 1
-        f.days_low = float(data[column_idx])
+        f.days_low = Fetcher._parse_float(data[column_idx])
         column_idx += 1
-        f.days_high = float(data[column_idx])
+        f.days_high = Fetcher._parse_float(data[column_idx])
         column_idx += 1
-        f.change = float(data[column_idx])
+        f.change = Fetcher._parse_float(data[column_idx])
         column_idx += 1
-        f.volume = float(data[column_idx])
+        f.volume = Fetcher._parse_float(data[column_idx])
         column_idx += 1
         f.market_cap_in_millions = Fetcher._parse_number_in_millions(data[column_idx])
         column_idx += 1
-        f.book_value = float(data[column_idx])
+        f.book_value = Fetcher._parse_float(data[column_idx])
         column_idx += 1
         f.ebitda_in_millions = Fetcher._parse_number_in_millions(data[column_idx])
         column_idx += 1
@@ -80,11 +81,11 @@ class Fetcher:
         column_idx += 1
         f.dividend_yield = Fetcher._parse_float(data[column_idx])
         column_idx += 1
-        f.earning_share = float(data[column_idx])
+        f.earning_share = Fetcher._parse_float(data[column_idx])
         column_idx += 1
-        f.price_book = float(data[column_idx])
+        f.price_book = Fetcher._parse_float(data[column_idx])
         column_idx += 1
-        f.price_sales = float(data[column_idx])
+        f.price_sales = Fetcher._parse_float(data[column_idx])
         return True
 
     def fetch_historical(self, f, start_date, end_date, num_retries=3):
@@ -158,7 +159,7 @@ class Fetcher:
 
     @staticmethod
     def _parse_number_in_millions(val):
-        if val is None:
+        if val is None or val == 'N/A' or val == 'n/a' or val == 'NA' or val == 'na':
             return None
         val = val.strip()
         if val.endswith("B"):
