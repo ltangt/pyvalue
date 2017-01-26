@@ -265,6 +265,7 @@ def convert_date(date_text):
         except:
             return datetime.datetime.strptime(date_text, "%Y-%m-%d")
 
+
 def cmp_date(date_text1, date_text2):
     """
     Compare two date strings, which are the keys of the financial date values

@@ -1,11 +1,10 @@
 # Yahoo finance api data fetcher
 # Author: Liang Tang
 # License: BSD
-import sys
-
 import datetime
-from yahoo_finance import Share
+import urllib2
 from dateutil.parser import parse
+
 from pyvalue.yahoofinance.financial import DailyRecord
 from pyvalue.log_info import LogInfo
 
@@ -16,96 +15,147 @@ class YahooFinanceFetcherException(Exception):
 
 class Fetcher:
     def __init__(self):
-        self._num_retries = 3
         return
 
-    def fetch_quote(self, fin, num_retries=3):
-        stock = fin.stock
-        self._num_retries = num_retries
+    def fetch_quote(self, f, num_retries=3):
+        """
+        Directly call Yahoo Finance website to get the stock quote.
+        See Details: http://wern-ancheta.com/blog/2015/04/05/getting-started-with-the-yahoo-finance-api/
+        :param f: the financial object
+        :type f: pyvalue.yahoofinance.financial.Financial
+        :param num_retries: the number of retries
+        :type num_retries: int
+        :return:
+        """
+        stock = f.stock
+        url = (r'http://finance.yahoo.com/d/quotes.csv?s={0}&f=d1t1l1ghc1vj1b4j4dyep6p5'.format(stock))
         for try_idx in range(num_retries):
             try:
-                share = Share(stock)
-                self._fetch_quote(fin, share)
+                response = urllib2.urlopen(url)
+                csv = response.read()
+                if len(csv.strip()) == 0:
+                    raise YahooFinanceFetcherException("Empty response of the http request.")
+                self._parse_quote_csv(csv, f)
                 return True
             except Exception as err:
                 LogInfo.info(stock + " : " + err.message + " in the " + str((try_idx + 1)) + " time")
                 if try_idx == num_retries - 1:
-                    LogInfo.error('Failed to retrieve information for ' + stock )
+                    LogInfo.error('Failed to retrieve information for ' + stock)
                     return False
 
-    def _fetch_quote(self, f, share):
+    def _parse_quote_csv(self, csv, f):
+        """
+        :param csv: the return csv data from Yahoo finance
+        :type csv: str
+        :param f: the financial object
+        :type f: pyvalue.yahoofinance.financial.Financial
+        :return:
+        """
         stock = f.stock
-        trade_datetime_text = self._text_val(share, "get_trade_datetime")
+        data = csv.split(',')
+        column_idx = 0
+        trade_datetime_text = (data[column_idx] + " " + data[column_idx+1]).replace('"', '')
         if trade_datetime_text is None:
             raise YahooFinanceFetcherException(stock + " does not has trading time.")
         f.trade_datetime = parse(trade_datetime_text)
-        f.price = self._float_val(share, "get_price")
-        f.days_high = self._float_val(share, "get_days_high")
-        f.days_low = self._float_val(share, "get_days_low")
-        f.change = self._float_val(share, "get_change")
-        f.volume = self._float_val(share, "get_volume")
-        f.market_cap_in_millions = self._parse_number_in_millions(share, "get_market_cap")
-        f.book_value = self._float_val(share, "get_book_value")
-        f.ebitda_in_millions = self._parse_number_in_millions(share, "get_ebitda")
-        f.dividend_share = self._float_val(share, "get_dividend_share")
-        f.dividend_yield = self._float_val(share, "get_dividend_yield")
-        f.earning_share = self._float_val(share, "get_earnings_share")
-        f.price_book = self._float_val(share, "get_price_book")
-        f.price_sales = self._float_val(share, "get_price_sales")
-        return f
+        column_idx += 2
+        f.price = float(data[column_idx])
+        column_idx += 1
+        f.days_low = float(data[column_idx])
+        column_idx += 1
+        f.days_high = float(data[column_idx])
+        column_idx += 1
+        f.change = float(data[column_idx])
+        column_idx += 1
+        f.volume = float(data[column_idx])
+        column_idx += 1
+        f.market_cap_in_millions = self._parse_number_in_millions(data[column_idx])
+        column_idx += 1
+        f.book_value = float(data[column_idx])
+        column_idx += 1
+        f.ebitda_in_millions = self._parse_number_in_millions(data[column_idx])
+        column_idx += 1
+        f.dividend_share = float(data[column_idx])
+        column_idx += 1
+        f.dividend_yield = float(data[column_idx])
+        column_idx += 1
+        f.earning_share = float(data[column_idx])
+        column_idx += 1
+        f.price_book = float(data[column_idx])
+        column_idx += 1
+        f.price_sales = float(data[column_idx])
+        return True
 
-    def fetch_historical(self, fin, start_date, end_date, num_retries=3):
-        stock = fin.stock
-        self._num_retries = num_retries
+    def fetch_historical(self, f, start_date, end_date, num_retries=3):
+        """
+
+        :param f: the financial object
+        :type f: pyvalue.yahoofinance.financial.Financial
+        :param start_date: the start date
+        :type start_date: str
+        :param end_date: the end data
+        :type end_date: str
+        :param num_retries: the number of retries
+        :type num_retries: int
+        :return:
+        """
+        stock = f.stock
+        start_year, start_month, start_day = Fetcher._parse_date_str(start_date)
+        end_year, end_month, end_day = Fetcher._parse_date_str(end_date)
+        url = (r'http://ichart.finance.yahoo.com/table.csv?s={0}'
+               r'&a={1}&b={2}&c={3}&d={4}&e={5}&f={6}&g=d&ignore=.csv'
+               .format(stock, start_month-1, start_day, start_year, end_month-1, end_day, end_year))
         for try_idx in range(num_retries):
             try:
-                share = Share(stock)
-                ret = Fetcher._fetch_historical(fin, share, start_date, end_date)
-                if ret == 0:
-                    raise YahooFinanceFetcherException("historical result is empty")
+                response = urllib2.urlopen(url)
+                csv = response.read()
+                if len(csv.strip()) == 0:
+                    raise YahooFinanceFetcherException("Empty response of the http request.")
+                self._parse_historical_csv(csv, f)
                 return True
             except Exception as err:
                 LogInfo.info(stock + " : " + err.message + " in the " + str((try_idx + 1)) + " time")
                 if try_idx == num_retries - 1:
-                    sys.stderr.write('Failed to retrieve information for ' + stock + '\n')
+                    LogInfo.error('Failed to retrieve information for ' + stock)
                     return False
 
-    @staticmethod
-    def _fetch_historical(fin, share, start_date, end_date):
+    def _parse_historical_csv(self, csv, f):
         """
-        fetch the Yahoo Finance historical api data
-        :param fin: the financial object
-        :type fin: pyvalue.yahoofinance.financial.Financial
-        :param share: the share object from yahoo finance python library
-        :type share: Share
-        :param start_date: the start date
-        :type start_date: str
-        :param end_date: the end date
-        :type end_date: str
-        :return: the number of daily records fetched
+        :param csv: the return csv data from Yahoo finance
+        :type csv: str
+        :param f: the financial object
+        :type f: pyvalue.yahoofinance.financial.Financial
+        :return:
         """
-
-        hist = Fetcher._get_historical(share, start_date, end_date)
-        if hist is None or len(hist) == 0:
-            raise YahooFinanceFetcherException("no result")
+        lines = csv.split('\n')[1:] # skip the first line (header)
         daily_records = []
-        for elem in hist:
+        for line in lines:
+            line = line.strip()
+            if len(line) == 0:
+                continue
+            elems = line.split(',')
             record = DailyRecord()
-            date_text = elem['Date']
+            column_idx = 0
+            date_text = elems[column_idx]
             record.date = datetime.datetime.strptime(date_text, "%Y-%m-%d").date()
-            record.open = elem['Open']
-            record.close = elem['Close']
-            record.adj_close = elem['Adj_Close']
-            record.high = elem['High']
-            record.low = elem['Low']
-            record.volume = elem['Volume']
+            column_idx += 1
+            record.open = elems[column_idx]
+            column_idx += 1
+            record.high = elems[column_idx]
+            column_idx += 1
+            record.low = elems[column_idx]
+            column_idx += 1
+            record.close = elems[column_idx]
+            column_idx += 1
+            record.volume = elems[column_idx]
+            column_idx += 1
+            record.adj_close = elems[column_idx]
             daily_records.append(record)
-        fin.stock_historical = daily_records
-        return len(fin.stock_historical)
+            f.stock_historical = daily_records
+        return len(f.stock_historical)
 
     @staticmethod
-    def _parse_number_in_millions(share, attr_name):
-        val = Fetcher._text_val(share, attr_name)
+    def _parse_number_in_millions(val):
         if val is None:
             return None
         val = val.strip()
@@ -119,52 +169,10 @@ class Fetcher:
             return float(val[:-1])/(1000.0*1000.0)
 
     @staticmethod
-    def _text_val(share, attr_name):
-        method = getattr(share, attr_name)
-        try:
-            return method()
-        except:
-            return None
-
-    @staticmethod
-    def _float_val(share, attr_name):
-        val = Fetcher._text_val(share, attr_name)
-        if val is None:
-            return None
-        else:
-            return float(val)
-
-    @staticmethod
-    def _get_historical(share, start_date, end_date, step_days=356):
-        """
-        get the historical stock price from Yahoo Finance api
-        :param share:
-        :type share: yahoo_finance.Share
-        :param start_date:
-        :param end_date:
-        :param step_days:
-        :return:
-        """
-        mask = '%Y-%m-%d'
-        start = datetime.datetime.strptime(start_date, mask)
-        end = datetime.datetime.strptime(end_date, mask)
-        result = []
-        if start > end:
-            raise ValueError('Start date "%s" is greater than "%s"' % (start_date, end_date))
-        step = datetime.timedelta(days=step_days)
-        while end - step > start:
-            current = end - step
-            try:
-                hist = share.get_historical(current.strftime(mask), end.strftime(mask))
-                result.extend(hist)
-            except:
-                pass
-            end = current - datetime.timedelta(days=1)
-        else:
-            try:
-                hist = share.get_historical(start.strftime(mask), end.strftime(mask))
-                result.extend(hist)
-            except:
-                pass
-        return result
+    def _parse_date_str(date_str):
+        tokens = date_str.split('-')
+        year = int(tokens[0])
+        month = int(tokens[1])
+        day = int(tokens[2])
+        return year, month, day
 

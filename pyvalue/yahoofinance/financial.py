@@ -234,7 +234,7 @@ class DailyRecord(object):
         self._volume = value
 
     def __str__(self):
-        return "["+self.date +\
+        return "["+str(self.date) +\
                ","+self.open +\
                ","+self.close +\
                ","+self.low +\
