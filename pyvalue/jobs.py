@@ -101,6 +101,26 @@ def update_sp500_yahoofinance_stock_quote():
     db_conn.close()
 
 
+def update_nasdaq_etf_yahoofinance_stock_quote():
+    fetcher = YahooFinanceFetcher()
+    db_conn = YahooFinancialDB()
+    db_conn.connect()
+    num_stock_updated = 0
+    for stock in constants.get_nasaq_efts_symbols():
+        fin = YahooFinanceFinancial(stock)
+        success = fetcher.fetch_quote(fin)
+        log_msg = ""
+        if not success:
+            log_msg += "no result for " + stock
+        else:
+            db_conn.update_quote(fin)
+            log_msg += "updated " + stock;
+        log_msg += " , "+str(num_stock_updated+1) + " stocks processed."
+        LogInfo.info(log_msg)
+        num_stock_updated += 1
+    db_conn.close()
+
+
 def update_yahoofinance_stock_historical(stock, start_date, end_date):
     fetcher = YahooFinanceFetcher()
     db_conn = YahooFinancialDB()
@@ -137,3 +157,22 @@ def update_sp500_yahoofinance_stock_historical(start_date, end_date):
         num_stock_updated += 1
     db_conn.close()
 
+
+def update_nasdaq_eft_yahoofinance_stock_historical(start_date, end_date):
+    fetcher = YahooFinanceFetcher()
+    db_conn = YahooFinancialDB()
+    db_conn.connect()
+    num_stock_updated = 0
+    for stock in constants.get_nasaq_efts_symbols():
+        fin = YahooFinanceFinancial(stock)
+        success = fetcher.fetch_historical(fin, start_date, end_date)
+        log_msg = ""
+        if not success:
+            log_msg += "no result for " + stock
+        else:
+            db_conn.update_historical(fin)
+            log_msg += "updated " + stock
+        log_msg += " , " + str(num_stock_updated + 1) + " stocks processed."
+        LogInfo.info(log_msg)
+        num_stock_updated += 1
+    db_conn.close()

@@ -70,7 +70,7 @@ def get_sp_500_companies():
     sp500_file_path = package_dir + "/../sp500.csv"
     sp500_file = open(sp500_file_path, "rb")
     reader = csv.reader(sp500_file, delimiter=',')
-    next(reader)
+    next(reader)  # skip the header
     for row in reader:
         SP500_2016.append(row[0])
     sp500_file.close()
@@ -81,3 +81,22 @@ def get_sp_500_universe():
     universe = get_sp_500_companies()
     universe.append("SPY")
     return universe
+
+
+def get_nasaq_efts_symbols():
+    """
+    Get the Nasaq traded EFT symbols
+    :return:
+    """
+    package_dir = os.path.dirname(__file__)
+    file_path = package_dir + "/../nasdaqtraded.txt"
+    file = open(file_path, "rb")
+    reader = csv.reader(file, delimiter='|')
+    next(reader)  # skip the header
+    efts = []
+    for row in reader:
+        is_eft = row[5]
+        if is_eft == 'Y':
+            efts.append(row[1])
+    file.close()
+    return efts
