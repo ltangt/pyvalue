@@ -29,7 +29,7 @@ class Fetcher:
         :return:
         """
         stock = f.stock
-        url = (r'http://finance.yahoo.com/d/quotes.csv?s={0}&f=d1t1l1ghc1vj1b4j4dyep6p5'.format(stock))
+        url = (r'http://finance.yahoo.com/d/quotes.csv?s={0}&f=d1t1l1ghc1vj1b4j4dr1qyep6p5'.format(stock))
         for try_idx in range(num_retries):
             try:
                 response = urllib2.urlopen(url)
@@ -82,6 +82,10 @@ class Fetcher:
         column_idx += 1
         f.dividend_share = Fetcher._parse_float(data[column_idx])
         column_idx += 1
+        f.dividend_pay_date = Fetcher._parse_date_str(data[column_idx], "%m/%d/%Y")
+        column_idx += 1
+        f.ex_dividend_date = Fetcher._parse_date_str(data[column_idx], "%m/%d/%Y")
+        column_idx += 1
         f.dividend_yield = Fetcher._parse_float(data[column_idx])
         column_idx += 1
         f.earning_share = Fetcher._parse_float(data[column_idx])
@@ -105,8 +109,8 @@ class Fetcher:
         :return:
         """
         stock = f.stock
-        start_year, start_month, start_day = Fetcher._parse_date_str(start_date)
-        end_year, end_month, end_day = Fetcher._parse_date_str(end_date)
+        start_year, start_month, start_day = Fetcher._split_date_str(start_date)
+        end_year, end_month, end_day = Fetcher._split_date_str(end_date)
         url = (r'http://ichart.finance.yahoo.com/table.csv?s={0}'
                r'&a={1}&b={2}&c={3}&d={4}&e={5}&f={6}&g=d&ignore=.csv'
                .format(stock, start_month-1, start_day, start_year, end_month-1, end_day, end_year))
@@ -175,12 +179,28 @@ class Fetcher:
             return float(val[:-1])/(1000.0*1000.0)
 
     @staticmethod
-    def _parse_date_str(date_str):
-        tokens = date_str.split('-')
-        year = int(tokens[0])
-        month = int(tokens[1])
-        day = int(tokens[2])
-        return year, month, day
+    def _split_date_str(date_str, format_template='%Y-%m-%d'):
+        date_str = date_str.replace("'", "")
+        date_str = date_str.replace("\"", "")
+        if format_template == '%Y-%m-%d':
+            tokens = date_str.split('-')
+            year = int(tokens[0])
+            month = int(tokens[1])
+            day = int(tokens[2])
+            return year, month, day
+        elif format_template == '%m/%d/%Y':
+            tokens = date_str.split('/')
+            year = int(tokens[2])
+            month = int(tokens[0])
+            day = int(tokens[1])
+            return year, month, day
+        else:
+            raise YahooFinanceFetcherException("Unknown format template for date parser : "+format_template)
+
+    @staticmethod
+    def _parse_date_str(date_str, format_template='%Y-%m-%d'):
+        year, month, day = Fetcher._split_date_str(date_str, format_template)
+        return datetime.strptime(str(year)+"-"+str(month)+"-"+str(day), "%Y-%m-%d").date()
 
     @staticmethod
     def _parse_float(val_str):

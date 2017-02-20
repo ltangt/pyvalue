@@ -17,6 +17,8 @@ class Financial(object):
         self._book_value = None
         self._ebitda_in_millions = None
         self._dividend_share = None
+        self._dividend_pay_date = None
+        self._ex_dividend_date = None
         self._dividend_yield = None
         self._earning_share = None
         self._price_book = None
@@ -107,6 +109,22 @@ class Financial(object):
     @dividend_share.setter
     def dividend_share(self, dividend_share):
         self._dividend_share = dividend_share
+
+    @property
+    def dividend_pay_date(self):
+        return self._dividend_pay_date
+
+    @dividend_pay_date.setter
+    def dividend_pay_date(self, dividend_pay_date):
+        self._dividend_pay_date = dividend_pay_date
+
+    @property
+    def ex_dividend_date(self):
+        return self._ex_dividend_date
+
+    @ex_dividend_date.setter
+    def ex_dividend_date(self, ex_dividend_date):
+        self._ex_dividend_date = ex_dividend_date
 
     @property
     def dividend_yield(self):

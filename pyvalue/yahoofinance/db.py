@@ -52,34 +52,42 @@ class Database:
         existing_datetimes = set(existing_datetimes)
         # Insert to update the financial values in the database
         cur = self._conn.cursor()
-        sql_insert = "INSERT INTO " + Database.STOCK_QUOTE_TABLE + \
-                     "  (STOCK, TRADE_DATETIME_UTC, VERSION, " \
-                     "  PRICE, DAYS_HIGH, DAYS_LOW, PRICE_CHANGE, " \
-                     "  VOLUME, MARKET_CAP_IN_MILLIONS, BOOK_VALUE," \
-                     "  EBITDA_IN_MILLIONS, DIVIDEND_SHARE, DIVIDEND_YIELD, EARNING_SHARE, " \
-                     "  PRICE_BOOK, PRICE_SALES) " \
-                     "VALUES('%s','%s','%s'," \
-                     "  %s, " \
-                     "  %s,%s,%s,%s," \
-                     "  %s,%s,%s,%s," \
-                     "  %s,%s,%s,%s )"
-        sql_update = "UPDATE " + Database.STOCK_QUOTE_TABLE + " " + \
-                     "SET TS=CURRENT_TIMESTAMP(), " \
-                     "  PRICE = %s," \
-                     "  DAYS_HIGH = %s, " \
-                     "  DAYS_LOW = %s, " \
-                     "  PRICE_CHANGE = %s, " \
-                     "  VOLUME = %s, " \
-                     "  MARKET_CAP_IN_MILLIONS = %s, " \
-                     "  BOOK_VALUE = %s, " \
-                     "  EBITDA_IN_MILLIONS = %s, " \
-                     "  DIVIDEND_SHARE = %s, " \
-                     "  DIVIDEND_YIELD = %s, " \
-                     "  EARNING_SHARE = %s, " \
-                     "  PRICE_BOOK = %s, " \
-                     "  PRICE_SALES = %s " \
-                     "WHERE STOCK = '%s' AND TRADE_DATETIME_UTC = '%s' " \
-                     " AND VERSION = '%s'"
+        sql_insert = ("INSERT INTO " + Database.STOCK_QUOTE_TABLE +
+                      "  (STOCK, TRADE_DATETIME_UTC, VERSION, "
+                      "  PRICE, DAYS_HIGH, DAYS_LOW, PRICE_CHANGE, "
+                      "  VOLUME, MARKET_CAP_IN_MILLIONS, BOOK_VALUE, EBITDA_IN_MILLIONS,"
+                      "  DIVIDEND_SHARE, DIVIDEND_PAY_DATE, EX_DIVIDEND_DATE, "
+                      "  DIVIDEND_YIELD, EARNING_SHARE, PRICE_BOOK, PRICE_SALES) "
+                      "VALUES("
+                      # STOCK, TRADE_DATETIME_UTC, VERSION
+                      "  '%s','%s','%s',"
+                      # PRICE, DAYS_HIGH, DAYS_LOW, PRICE_CHANGE
+                      "  %s, %s, %s, %s, "
+                      # VOLUME, MARKET_CAP_IN_MILLIONS, BOOK_VALUE, EBITDA_IN_MILLIONS,
+                      "  %s, %s, %s, %s, "
+                      # DIVIDEND_SHARE, DIVIDEND_PAY_DATE, EX_DIVIDEND_DATE,
+                      "  %s, %s, %s, %s, "
+                      # dIVIDEND_YIELD, EARNING_SHARE, PRICE_BOOK, PRICE_SALES
+                      "  %s, %s, %s, %s )")
+        sql_update = ("UPDATE " + Database.STOCK_QUOTE_TABLE +
+                      "  SET TS=CURRENT_TIMESTAMP(), "
+                      "  PRICE = %s,"
+                      "  DAYS_HIGH = %s, "
+                      "  DAYS_LOW = %s, "
+                      "  PRICE_CHANGE = %s, "
+                      "  VOLUME = %s, "
+                      "  MARKET_CAP_IN_MILLIONS = %s, "
+                      "  BOOK_VALUE = %s, "
+                      "  EBITDA_IN_MILLIONS = %s, "
+                      "  DIVIDEND_SHARE = %s, "
+                      "  DIVIDEND_PAY_DATE = %s, "
+                      "  EX_DIVIDEND_DATE = %s, "
+                      "  DIVIDEND_YIELD = %s, "
+                      "  EARNING_SHARE = %s, "
+                      "  PRICE_BOOK = %s, "
+                      "  PRICE_SALES = %s "
+                      "WHERE STOCK = '%s' AND TRADE_DATETIME_UTC = '%s' "
+                      " AND VERSION = '%s'")
         cur_datetime = fin.trade_datetime.strftime('%Y-%m-%d %H:%M:%S')  # Only works for UTC timezone
         value_tuple = (fin.price,
                        fin.days_high,
@@ -90,6 +98,8 @@ class Database:
                        fin.book_value,
                        fin.ebitda_in_millions,
                        fin.dividend_share,
+                       fin.dividend_pay_date.strftime('%Y-%m-%d'),
+                       fin.ex_dividend_date.strftime('%Y-%m-%d'),
                        fin.dividend_yield,
                        fin.earning_share,
                        fin.price_book,
