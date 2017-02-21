@@ -72,7 +72,7 @@ def update_sp500_morningstars_stock_historical(start_date, end_date, overwrite=T
             log_msg += "no result for " + stock + ", "
         else:
             ret = db_conn.update_historical_stock_price(fin, overwrite=overwrite)
-            ret &= db_conn.update_historical_dividend_date(fin, overwrite=overwrite)
+            ret |= db_conn.update_historical_dividend_date(fin, overwrite=overwrite)
             if ret:
                 log_msg += "updated " + stock + ", "
             else:
@@ -95,7 +95,7 @@ def update_nasdaq_eft_morningstar_stock_historical(start_date, end_date, overwri
             log_msg += "no result for " + stock + ", "
         else:
             ret = db_conn.update_historical_stock_price(fin, overwrite=overwrite)
-            ret &= db_conn.update_historical_dividend_date(fin, overwrite=overwrite)
+            ret |= db_conn.update_historical_dividend_date(fin, overwrite=overwrite)
             if ret:
                 log_msg += "updated " + stock + ", "
             else:

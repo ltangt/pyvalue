@@ -112,7 +112,7 @@ class Database:
             ret = self._update_single_column(stock, date_values, currency, version,
                                              table_name, column, overwrite)
             has_updated |= ret
-        self._conn.commit()
+            self._conn.commit()
         return has_updated
 
     # Update the single column value, such as revenue, net_income and other financial values with dates in the database

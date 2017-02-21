@@ -182,15 +182,18 @@ class HistoricalFetcher:
         dividend_data = json_obj[HistoricalFetcher.DIVIDEND_DATA]
         dividends = {}
         num_points = len(dividend_data)
-        for idx in range(num_points):
-            record = dividend_data[idx]
-            dividend_date = record["Date"]
-            dividend_type = record["Type"]
-            if dividend_type == "Dividend":
-                desc = record["Desc"]  # e.g., "Dividends:0.5200"
-                tokens = desc.split(":")
-                div_str = tokens[1].strip().replace("<br>", "")
-                dividends[dividend_date] = float(div_str)  # e.g., 0.5200
+        if num_points == 0:
+            LogInfo.info(stock + " has no dividend.")
+        else:
+            for idx in range(num_points):
+                record = dividend_data[idx]
+                dividend_date = record["Date"]
+                dividend_type = record["Type"]
+                if dividend_type == "Dividend":
+                    desc = record["Desc"]  # e.g., "Dividends:0.5200"
+                    tokens = desc.split(":")
+                    div_str = tokens[1].strip().replace("<br>", "")
+                    dividends[dividend_date] = float(div_str)  # e.g., 0.5200
         fin.stock_dividend_date = dividends
         return True
 
