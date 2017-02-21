@@ -15,7 +15,7 @@ class Fetcher:
         return internal_fetcher.fetch(fin, num_retries=num_retries, use_cache=use_cache)
 
     @staticmethod
-    def fetch_stock_historical_price(fin, start_date, end_date, num_retries=3, use_cache=False):
+    def fetch_stock_historical(fin, start_date, end_date, num_retries=3, use_cache=False):
         internal_fetcher = historical_fetcher.HistoricalFetcher()
         return internal_fetcher.fetch(fin, start_date, end_date, num_retries=num_retries, use_cache=use_cache)
 

@@ -27,7 +27,7 @@ class DatabaseTest(unittest.TestCase):
     def test_update_historical_prices(self):
         fetcher = Fetcher()
         aapl = financial.Financial('AAPL')
-        fetcher.fetch_stock_historical_price(aapl, '2016-01-01', '2017-02-01')
+        fetcher.fetch_stock_historical(aapl, '2016-01-01', '2017-02-01')
         db_conn = db.Database()
         db_conn.connect()
         db_conn.update_historical_stock_price(aapl)

@@ -26,7 +26,7 @@ def update_morningstar_fundamental(stock, overwrite=True, use_cache=False):
 
 def update_morningstar_stock_historical(stock, start_date, end_date, overwrite=True, use_cache=False):
     fin = MorningstarFinancial(stock)
-    success = MorningstarFetcher.fetch_stock_historical_price(fin, start_date, end_date, use_cache=use_cache)
+    success = MorningstarFetcher.fetch_stock_historical(fin, start_date, end_date, use_cache=use_cache)
     if (fin is None) or (not success):
         LogInfo.info("No result")
         return
@@ -65,12 +65,13 @@ def update_sp500_morningstars_stock_historical(start_date, end_date, overwrite=T
     num_stock_updated = 0
     for stock in constants.get_sp_500_universe():
         fin = MorningstarFinancial(stock)
-        success = MorningstarFetcher.fetch_stock_historical_price(fin, start_date, end_date, use_cache=use_cache)
+        success = MorningstarFetcher.fetch_stock_historical(fin, start_date, end_date, use_cache=use_cache)
         log_msg = ""
         if (fin is None) or (not success):
             log_msg += "no result for " + stock + ", "
         else:
             ret = db_conn.update_historical_stock_price(fin, overwrite=overwrite)
+            ret &= db_conn.update_historical_dividend_date(fin, overwrite=overwrite)
             if ret:
                 log_msg += "updated " + stock + ", "
             else:
@@ -87,12 +88,13 @@ def update_nasdaq_eft_morningstar_stock_historical(start_date, end_date, overwri
     num_stock_updated = 0
     for stock in constants.get_nasaq_efts_symbols():
         fin = MorningstarFinancial(stock)
-        success = MorningstarFetcher.fetch_stock_historical_price(fin, start_date, end_date, use_cache=use_cache)
+        success = MorningstarFetcher.fetch_stock_historical(fin, start_date, end_date, use_cache=use_cache)
         log_msg = ""
         if (fin is None) or (not success):
             log_msg += "no result for " + stock + ", "
         else:
             ret = db_conn.update_historical_stock_price(fin, overwrite=overwrite)
+            ret &= db_conn.update_historical_dividend_date(fin, overwrite=overwrite)
             if ret:
                 log_msg += "updated " + stock + ", "
             else:
@@ -101,6 +103,7 @@ def update_nasdaq_eft_morningstar_stock_historical(start_date, end_date, overwri
         LogInfo.info(log_msg)
         num_stock_updated += 1
     db_conn.close()
+
 
 def update_sp500_yahoofinance_stock_quote():
     fetcher = YahooFinanceFetcher()
