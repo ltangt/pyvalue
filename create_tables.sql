@@ -113,12 +113,22 @@ CREATE TABLE `investment`.`morningstar_stock_price`(
   `HIGHEST_PRICE` DOUBLE DEFAULT NULL,
   `LOWEST_PRICE` DOUBLE DEFAULT NULL,
   `OPEN_PRICE` DOUBLE DEFAULT NULL,
+  `VOLUME` DOUBLE DEFAULT NULL,
   `CURRENCY` VARCHAR(24) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'USD',
   PRIMARY KEY(`STOCK`, `DATE`, `VERSION`)
 ) ENGINE = InnoDB;
 
+CREATE TABLE `investment`.`morningstar_dividend_date`(
+  `STOCK` VARCHAR(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `DATE` VARCHAR(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `VERSION` VARCHAR(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `TS` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `DIVIDEND` DOUBLE DEFAULT NULL,
+  `CURRENCY` VARCHAR(24) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'USD',
+  PRIMARY KEY(`STOCK`, `DATE`, `VERSION`)
+) ENGINE = InnoDB;
 
-
+------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------
 -- Yahoo Finance tables
 CREATE TABLE `investment`.`yahoo_finance_stock_quote`(

@@ -26,11 +26,15 @@ class Database:
         'CURRENT_RATIO': ('current_ratio', None, 'morningstar_current_ratio'),
         'DEBT_TO_EQUITY': ('debt_to_equity', None, 'morningstar_debt_to_equity'),
     }
-    STOCK_PRICE_TABLE_COLUMNS = {
+    HISTORICAL_STOCK_PRICE_TABLE_COLUMNS = {
         'CLOSE_PRICE': ('stock_daily_close_price', 'stock_daily_price_currency', 'morningstar_stock_price'),
         'OPEN_PRICE': ('stock_daily_open_price', None, 'morningstar_stock_price'),
         'HIGHEST_PRICE': ('stock_daily_highest_price', None, 'morningstar_stock_price'),
         'LOWEST_PRICE': ('stock_daily_lowest_price', None, 'morningstar_stock_price'),
+        'VOLUME': ('stock_daily_volume', None, 'morningstar_stock_price'),
+    }
+    HISTORICAL_DIVIDEND_TABLE_COLUMNS = {
+        'DIVIDEND': ('stock_dividend_date', None, 'morningstar_dividend_date'),
     }
 
     def __init__(self):
@@ -56,7 +60,7 @@ class Database:
 
     def update_fundamentals(self, fin, version='1', columns=None, overwrite=True):
         """
-        Update or insert the financial data into the database
+        Update or insert the financial fundamental data into the database
         :param fin: the morningstar financial object of the stock
         :type fin: financial.Financial
         :param version:
@@ -64,23 +68,31 @@ class Database:
         :param overwrite:
         :return:
         """
-        stock = fin.stock
+        return self._update_table_columns(fin, Database.FUNDAMENTAL_TABLE_COLUMNS, version, overwrite)
 
-        has_updated = False
-        for column in Database.FUNDAMENTAL_TABLE_COLUMNS:
-            if columns is None or column in columns:
-                value_attr_name = Database.FUNDAMENTAL_TABLE_COLUMNS.get(column)[0]
-                currency_attr_name = Database.FUNDAMENTAL_TABLE_COLUMNS.get(column)[1]
-                table_name = Database.FUNDAMENTAL_TABLE_COLUMNS.get(column)[2]
-                date_values = getattr(fin, value_attr_name)
-                currency = getattr(fin, currency_attr_name) if currency_attr_name is not None else None
-                ret = self._update_single_column(stock, date_values, currency, version,
-                                                 table_name, column, overwrite)
-                has_updated |= ret
-        self._conn.commit()
-        return has_updated
+    def update_historical_stock_price(self, fin, version='1', overwrite=True):
+        """
+        Update or insert the historical stock prices into the database
+        :param fin: the morningstar financial object of the stock
+        :type fin: financial.Financial
+        :param version:
+        :param overwrite:
+        :return:
+        """
+        return self._update_table_columns(fin, Database.HISTORICAL_STOCK_PRICE_TABLE_COLUMNS, version, overwrite)
 
-    def update_stock_prices(self, fin, version='1', overwrite=True):
+    def update_historical_dividend_date(self, fin, version='1', overwrite=True):
+        """
+        Update or insert the historical dividend and dates into the database
+        :param fin: the morningstar financial object of the stock
+        :type fin: financial.Financial
+        :param version:
+        :param overwrite:
+        :return:
+        """
+        return self._update_table_columns(fin, Database.HISTORICAL_DIVIDEND_TABLE_COLUMNS, version, overwrite)
+
+    def _update_table_columns(self, fin, table_columns, version='1', overwrite=True):
         """
         Update or insert the financial data into the database
         :param fin: the morningstar financial object of the stock
@@ -91,10 +103,10 @@ class Database:
         """
         stock = fin.stock
         has_updated = False
-        for column in Database.STOCK_PRICE_TABLE_COLUMNS:
-            value_attr_name = Database.STOCK_PRICE_TABLE_COLUMNS.get(column)[0]
-            currency_attr_name = Database.STOCK_PRICE_TABLE_COLUMNS.get(column)[1]
-            table_name = Database.STOCK_PRICE_TABLE_COLUMNS.get(column)[2]
+        for column in table_columns:
+            value_attr_name = table_columns.get(column)[0]
+            currency_attr_name = table_columns.get(column)[1]
+            table_name = table_columns.get(column)[2]
             date_values = getattr(fin, value_attr_name)
             currency = getattr(fin, currency_attr_name) if currency_attr_name is not None else None
             ret = self._update_single_column(stock, date_values, currency, version,
@@ -192,10 +204,10 @@ class Database:
         :return: Sucess or not
         """
         stock = fin.stock
-        for column in self.STOCK_PRICE_TABLE_COLUMNS:
-            value_attr_name = self.STOCK_PRICE_TABLE_COLUMNS.get(column)[0]
-            currency_attr_name = self.STOCK_PRICE_TABLE_COLUMNS.get(column)[1]
-            table_name = self.STOCK_PRICE_TABLE_COLUMNS.get(column)[2]
+        for column in self.HISTORICAL_STOCK_PRICE_TABLE_COLUMNS:
+            value_attr_name = self.HISTORICAL_STOCK_PRICE_TABLE_COLUMNS.get(column)[0]
+            currency_attr_name = self.HISTORICAL_STOCK_PRICE_TABLE_COLUMNS.get(column)[1]
+            table_name = self.HISTORICAL_STOCK_PRICE_TABLE_COLUMNS.get(column)[2]
             has_currency = currency_attr_name is not None
             date_values, currency = self._retrieve_date_values(stock, table_name, column, has_currency, version)
             if len(date_values) > 0:

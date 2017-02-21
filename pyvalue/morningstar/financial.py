@@ -22,7 +22,7 @@ class Financial(object):
         self._operating_income_currency = None  # the currency of the operating income, e.g., USD
         self._gross_margin = {}  # the gross margin, the difference between revenue and cost of goods sold divided
         # by revenue
-        self._dividends = {}  # the dividend in usd per share
+        self._dividends = {}  # the annual dividend in usd per share
         self._dividend_currency = None  # the currency of the dividend, e.g., USD
         self._debt_to_equity = {}  # the debt/equity
         self._current_ratio = {}  # the current ratio
@@ -31,6 +31,8 @@ class Financial(object):
         self._stock_daily_highest_price = {}  # the historical highest price for each day
         self._stock_daily_lowest_price = {}  # the historical lowest price for each day
         self._stock_daily_price_currency = None  # the currency of the stock price for each day
+        self._stock_daily_volume = {}  # the historical volume for trading for each day
+        self._stock_dividend_date = {}  # the historical dividend paid by the stock and the pay date
         return
 
     @property
@@ -198,12 +200,28 @@ class Financial(object):
         self._stock_daily_lowest_price = value
 
     @property
+    def stock_daily_volume(self):
+        return self._stock_daily_volume
+
+    @stock_daily_volume.setter
+    def stock_daily_volume(self, value):
+        self._stock_daily_volume = value
+
+    @property
     def stock_daily_price_currency(self):
         return self._stock_daily_price_currency
 
     @stock_daily_price_currency.setter
     def stock_daily_price_currency(self, value):
         self._stock_daily_price_currency = value
+
+    @property
+    def stock_dividend_date(self):
+        return self._stock_dividend_date
+
+    @stock_dividend_date.setter
+    def stock_dividend_date(self, value):
+        self._stock_dividend_date = value
 
     def get_latest_price(self):
         if len(self.stock_daily_close_price) == 0:
@@ -243,6 +261,10 @@ class Financial(object):
         info += str(self.stock_daily_highest_price)
         info += "\n stock_daily_lowest_price =>"
         info += str(self.stock_daily_lowest_price)
+        info += "\n stock_daily_volume =>"
+        info += str(self.stock_daily_volume)
+        info += "\n stock_dividend_date =>"
+        info += str(self.stock_dividend_date)
         return info
 
 

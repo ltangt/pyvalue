@@ -2,7 +2,7 @@
 # Author: Liang Tang
 # License: BSD
 from pyvalue.morningstar import fundamental_fetcher
-from pyvalue.morningstar import stock_price_fetcher
+from pyvalue.morningstar import historical_fetcher
 
 
 class Fetcher:
@@ -16,7 +16,7 @@ class Fetcher:
 
     @staticmethod
     def fetch_stock_historical_price(fin, start_date, end_date, num_retries=3, use_cache=False):
-        internal_fetcher = stock_price_fetcher.StockPriceFetcher()
+        internal_fetcher = historical_fetcher.HistoricalFetcher()
         return internal_fetcher.fetch(fin, start_date, end_date, num_retries=num_retries, use_cache=use_cache)
 
 
