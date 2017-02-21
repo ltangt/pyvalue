@@ -180,8 +180,6 @@ class HistoricalFetcher:
             raise fetcher_exception.FetcherException(HistoricalFetcher.DIVIDEND_DATA
                                                      + " is not in the json response for " + stock)
         dividend_data = json_obj[HistoricalFetcher.DIVIDEND_DATA]
-        if len(dividend_data) == 0:
-            return False  # No dividend data
         dividends = {}
         num_points = len(dividend_data)
         for idx in range(num_points):

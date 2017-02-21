@@ -12,4 +12,5 @@ from pyvalue import jobs
 # jobs.update_sp500_yahoofinance_stock_historical('2016-01-01', '2017-01-04')
 # jobs.update_morningstar_stock_historical('SPY', '2014-07-01', '2017-01-18')
 # jobs.update_yahoofinance_stock_historical('SPY', '2014-07-01', '2017-01-18')
-jobs.update_nasdaq_eft_yahoofinance_stock_historical('2017-02-01', '2017-02-05')
+# jobs.update_nasdaq_eft_yahoofinance_stock_historical('2017-02-01', '2017-02-05')
+jobs.update_morningstar_stock_historical('AKAM', '2010-01-01', '2017-02-17')

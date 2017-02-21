@@ -34,6 +34,7 @@ def update_morningstar_stock_historical(stock, start_date, end_date, overwrite=T
     db_conn = MorningstarDB()
     db_conn.connect()
     db_conn.update_historical_stock_price(fin, overwrite=overwrite)
+    db_conn.update_historical_dividend_date(fin, overwrite=overwrite)
     db_conn.close()
 
 
