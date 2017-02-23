@@ -3,6 +3,7 @@
 # License: BSD
 import urllib2
 import pytz
+import traceback
 
 from dateutil.parser import parse
 from datetime import datetime
@@ -39,6 +40,7 @@ class Fetcher:
                 Fetcher._parse_quote_csv(csv, f)
                 return True
             except Exception as err:
+                traceback.print_exc()
                 LogInfo.info(stock + " : " + err.message + " in the " + str((try_idx + 1)) + " time")
                 if try_idx == num_retries - 1:
                     LogInfo.error('Failed to retrieve information for ' + stock)
@@ -123,6 +125,7 @@ class Fetcher:
                 Fetcher._parse_historical_csv(csv, f)
                 return True
             except Exception as err:
+                traceback.print_exc()
                 LogInfo.info(stock + " : " + err.message + " in the " + str((try_idx + 1)) + " time")
                 if try_idx == num_retries - 1:
                     LogInfo.error('Failed to retrieve information for ' + stock)
@@ -199,6 +202,8 @@ class Fetcher:
 
     @staticmethod
     def _parse_date_str(date_str, format_template='%Y-%m-%d'):
+        if date_str == 'N/A' or date_str == '':
+            return None
         year, month, day = Fetcher._split_date_str(date_str, format_template)
         return datetime.strptime(str(year)+"-"+str(month)+"-"+str(day), "%Y-%m-%d").date()
 

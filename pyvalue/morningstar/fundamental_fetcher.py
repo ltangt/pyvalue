@@ -9,6 +9,7 @@ import urllib2
 from pyvalue.morningstar import fetcher_exception
 from pyvalue.morningstar import financial
 from pyvalue.log_info import LogInfo
+import traceback
 
 
 class FundamentalFetcher:
@@ -66,6 +67,7 @@ class FundamentalFetcher:
                 self._parse_html(html, fin)
                 return True
             except Exception as err:
+                traceback.print_exc()
                 LogInfo.info(stock + " : " + err.message + " in the "+str((try_idx+1))+" time")
                 if try_idx == num_retries - 1:
                     LogInfo.error('Failed to retrieve information for '+stock)

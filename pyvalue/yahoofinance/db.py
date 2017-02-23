@@ -98,14 +98,16 @@ class Database:
                        fin.book_value,
                        fin.ebitda_in_millions,
                        fin.dividend_share,
-                       fin.dividend_pay_date.strftime('%Y-%m-%d'),
-                       fin.ex_dividend_date.strftime('%Y-%m-%d'),
+                       None if fin.dividend_pay_date is None else fin.dividend_pay_date.strftime('%Y-%m-%d'),
+                       None if fin.ex_dividend_date is None else fin.ex_dividend_date.strftime('%Y-%m-%d'),
                        fin.dividend_yield,
                        fin.earning_share,
                        fin.price_book,
                        fin.price_sales,
                        )
+        # Normalize the value tuple, if the value is None, change it to 'NULL' IN mysql sql
         value_tuple = Database._process_tuple_value(value_tuple)
+
         if cur_datetime in existing_datetimes:
             value_tuple += (stock, cur_datetime, version)
             cur.execute(sql_update % value_tuple)

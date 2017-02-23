@@ -5,6 +5,7 @@ import json
 import os
 import urllib2
 import datetime
+import traceback
 
 from pyvalue.morningstar import fetcher_exception
 from pyvalue.morningstar import financial
@@ -61,6 +62,7 @@ class HistoricalFetcher:
                 if success:
                     return True
             except Exception as err:
+                traceback.print_exc()
                 LogInfo.info(stock + " : " + err.message + " in the "+str((try_idx+1))+" time for "+stock)
                 if try_idx == num_retries - 1:
                     LogInfo.error('Failed to retrieve information for '+stock)
