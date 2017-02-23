@@ -59,16 +59,16 @@ class Database:
                       "  DIVIDEND_SHARE, DIVIDEND_PAY_DATE, EX_DIVIDEND_DATE, "
                       "  DIVIDEND_YIELD, EARNING_SHARE, PRICE_BOOK, PRICE_SALES) "
                       "VALUES("
-                      # STOCK, TRADE_DATETIME_UTC, VERSION
-                      "  '%s','%s','%s',"
-                      # PRICE, DAYS_HIGH, DAYS_LOW, PRICE_CHANGE
-                      "  %s, %s, %s, %s, "
-                      # VOLUME, MARKET_CAP_IN_MILLIONS, BOOK_VALUE, EBITDA_IN_MILLIONS,
-                      "  %s, %s, %s, %s, "
+                      # STOCK,   TRADE_DATETIME_UTC,  VERSION
+                      "  '%s',   '%s',                '%s',"
+                      # PRICE,   DAYS_HIGH, DAYS_LOW, PRICE_CHANGE
+                      "  %s,     %s,        %s,        %s, "
+                      # VOLUME,  MARKET_CAP_IN_MILLIONS, BOOK_VALUE, EBITDA_IN_MILLIONS,
+                      "  %s,     %s,                     %s,         %s, "
                       # DIVIDEND_SHARE, DIVIDEND_PAY_DATE, EX_DIVIDEND_DATE,
-                      "  %s, %s, %s, %s, "
-                      # dIVIDEND_YIELD, EARNING_SHARE, PRICE_BOOK, PRICE_SALES
-                      "  %s, %s, %s, %s )")
+                      "  %s,            %s,                %s, "
+                      # DIVIDEND_YIELD, EARNING_SHARE, PRICE_BOOK, PRICE_SALES
+                      "  %s,            %s,            %s,         %s )")
         sql_update = ("UPDATE " + Database.STOCK_QUOTE_TABLE +
                       "  SET TS=CURRENT_TIMESTAMP(), "
                       "  PRICE = %s,"
